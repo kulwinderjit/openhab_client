@@ -1,16 +1,13 @@
 # openhab_client
 
-A new Flutter project.
+A simple application to perfrom some basic openhab operations remotely.
 
-## Getting Started
+## Basic usage
 
-This project is a starting point for a Flutter application.
+This applications requires that your openhab installtion is connected to openhab cloud. You need openhab cloud credentials and api token generated from openhab installtion to run.
 
-A few resources to get you started if this is your first Flutter project:
+### How to generate api token.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+Opem openahb ui and go to your user profile. There you wil find button to generate api token.
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![alt text](https://github.com/kulwinderjit/openhab_client/blob/master/apitoken_img.png?raw=true)
