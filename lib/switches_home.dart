@@ -43,7 +43,7 @@ class SwitchesHome extends StatelessWidget {
             children: [
               Card(
                 elevation: 2,
-                color: Theme.of(context).primaryColor,
+                color: Theme.of(context).primaryColor.withAlpha(150),
                 child: ListTile(
                   title: Text(groupName),
                   textColor: Colors.white,

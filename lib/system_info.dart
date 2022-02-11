@@ -23,7 +23,7 @@ class SystemInfo extends StatelessWidget {
           child: Wrap(
         children: [
           Card(
-            color: Theme.of(context).primaryColor,
+            color: Theme.of(context).primaryColor.withAlpha(150),
             child: ListTile(
               title: Text(loc.sysInfoTitle,
                   style: const TextStyle(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:openhab_client/page_intransition.dart';
+import 'package:openhab_client/about_home.dart';
 import 'package:openhab_client/refresh_icon.dart';
 import 'package:openhab_client/rules_home.dart';
 import 'package:openhab_client/sensors_home.dart';
@@ -8,6 +8,7 @@ import 'package:openhab_client/sidebar.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:openhab_client/switches_home.dart';
 import 'package:openhab_client/system_info.dart';
+import 'package:openhab_client/things_home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PageWrapper extends StatefulWidget {
@@ -27,15 +28,32 @@ class PageWrapperState extends State<PageWrapper> {
   void initState() {
     super.initState();
     SharedPreferences.getInstance().then((prefs) {
-      displayName = prefs.get('displayName')!.toString();
-      userName = prefs.get('username')!.toString();
-      setState(() {});
+      displayName = prefs.get('displayName')?.toString();
+      userName = prefs.get('username')?.toString();
+      setState(() {
+        if (userName == null || userName!.isEmpty) {
+          navIndex = 6;
+        }
+      });
+    });
+  }
+
+  void _settingsVerified() {
+    SharedPreferences.getInstance().then((prefs) {
+      displayName = prefs.get('displayName')?.toString();
+      userName = prefs.get('username')?.toString();
+      setState(() {
+        if (userName == null || userName!.isEmpty) {
+          navIndex = 6;
+        }
+      });
     });
   }
 
   @override
   Widget build(BuildContext context) {
     AppLocalizations loc = AppLocalizations.of(context)!;
+    bool showRefresh = true;
     switch (navIndex) {
       case 1:
         title = loc.switchesSidebarTitle;
@@ -47,10 +65,17 @@ class PageWrapperState extends State<PageWrapper> {
         title = loc.ruleSidebarTitle;
         break;
       case 4:
-        title = loc.sysInfoSidebarTitle;
+        title = loc.thingsSidebarTitle;
         break;
       case 5:
+        title = loc.sysInfoSidebarTitle;
+        break;
+      case 6:
         title = loc.settingsSideBarTitle;
+        break;
+      case 7:
+        title = loc.aboutSideBarTitle;
+        showRefresh = false;
         break;
       default:
         title = loc.appTitle;
@@ -58,7 +83,7 @@ class PageWrapperState extends State<PageWrapper> {
     return Scaffold(
       appBar: AppBar(
         title: Text(title!),
-        actions: const [RefreshIcon()],
+        actions: showRefresh ? const [RefreshIcon()] : null,
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(5),
@@ -74,9 +99,13 @@ class PageWrapperState extends State<PageWrapper> {
             case 3:
               return const RulesHome();
             case 4:
-              return const SystemInfo();
+              return const ThingsHome();
             case 5:
-              return const SettingsHome();
+              return const SystemInfo();
+            case 6:
+              return SettingsHome(callback: _settingsVerified);
+            case 7:
+              return const AboutHome();
             default:
               return const SwitchesHome();
           }

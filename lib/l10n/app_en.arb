@@ -8,7 +8,10 @@
     "sysInfoSidebarSubTitle": "From /systeminfo endpoint",
     "ruleSidebarTitle": "Rules",
     "rulesSidebarSubTitle": "Enable/disable or run rules",
+    "thingsSidebarTitle": "Things",
+    "thingsSidebarSubTitle": "Enable/disable things",
     "settingsSideBarTitle": "Settings",
+    "aboutSideBarTitle": "About",
     "disabled": "Disabled",
     "enabled": "Enabled",
     "runRule": "Run rule",
@@ -26,5 +29,14 @@
     "noName": "No Name",
     "noValue": "No Value",
     "settingsSaved": "Settings saved successfully",
-    "noCredentials": "No Credentials"
+    "settingsFailed": "Credentials invalid or communication failed",
+    "verifyingCredentials": "Verifying Credentials..",
+    "noCredentials": "No Credentials",
+    "passwordRequired": "Passoword is required",
+    "userNameRequired": "Username is required",
+    "apiTokenRequired": "Api Token is required",
+    "developerName": "Kulwinderjit Singh",
+    "aboutTagline": "Application created in flutter",
+    "github": "Github",
+    "githubUrl": "https://github.com/kulwinderjit/openhab_client"
 }

@@ -3,30 +3,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class RuleWidget extends StatefulWidget {
-  RuleWidget(
+class ThingWidget extends StatefulWidget {
+  ThingWidget(
       {Key? key,
       required String name,
       required bool state,
-      required Future<bool> Function(bool state) stateCallback,
-      required Future<bool> Function() runCallback})
+      required Future<bool> Function(bool state) stateCallback})
       : super(key: key) {
     _name = name;
     _state = state;
-    _runCallback = runCallback;
     _stateCallback = stateCallback;
   }
   late bool _state;
   late String _name;
   late Future<bool> Function(bool state) _stateCallback;
-  late Future<bool> Function() _runCallback;
 
   @override
-  RuleWidgetState createState() => RuleWidgetState();
+  ThingWidgetState createState() => ThingWidgetState();
 }
 
-class RuleWidgetState extends State<RuleWidget> {
-  bool runningRule = false;
+class ThingWidgetState extends State<ThingWidget> {
   void toggleState(bool value) {
     if (widget._state == false) {
       setState(() {
@@ -48,25 +44,9 @@ class RuleWidgetState extends State<RuleWidget> {
         });
   }
 
-  void execute() {
-    setState(() {
-      runningRule = true;
-    });
-    Future<bool> call = widget._runCallback.call();
-    call.whenComplete(() => setState(() {
-          runningRule = false;
-        }));
-  }
-
   @override
   Widget build(BuildContext context) {
     AppLocalizations? loc = AppLocalizations.of(context);
-    Color runRuleColor;
-    if (Theme.of(context).brightness == Brightness.dark) {
-      runRuleColor = Colors.white;
-    } else {
-      runRuleColor = Theme.of(context).primaryColor.withAlpha(200);
-    }
     return Card(
       child: Column(children: [
         Card(
@@ -90,28 +70,6 @@ class RuleWidgetState extends State<RuleWidget> {
                 onChanged: toggleState,
                 value: widget._state,
               ),
-              Text(
-                loc.runRule,
-                style:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
-              ),
-              runningRule
-                  ? Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SizedBox(
-                          height: 24,
-                          width: 24,
-                          child:
-                              CircularProgressIndicator(color: runRuleColor)),
-                    )
-                  : IconButton(
-                      onPressed: execute,
-                      icon: Icon(
-                        Icons.play_circle,
-                        color: runRuleColor,
-                        size: 24,
-                      ),
-                    )
             ],
           ),
         ),

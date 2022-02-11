@@ -54,16 +54,29 @@ class SideBar extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalizations loc = AppLocalizations.of(context)!;
     bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Drawer(
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
             topRight: Radius.circular(20), bottomRight: Radius.circular(20)),
       ),
       child: ListView(
+        primary: false,
         children: [
           userName == null
               ? DrawerHeader(
-                  child: Text(loc.noCredentials),
+                  decoration:
+                      BoxDecoration(color: Theme.of(context).primaryColor),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        loc.noCredentials,
+                        style: TextStyle(fontSize: 14, color: Colors.white),
+                      ),
+                    ],
+                  ),
                 )
               : UserAccountsDrawerHeader(
                   accountName: Text(displayName ?? loc.displayName),
@@ -72,7 +85,7 @@ class SideBar extends StatelessWidget {
                 ),
           _navItem(
               context: context,
-              icon: Icons.settings_power,
+              icon: Icons.toggle_on,
               title: loc.switchesSidebarTitle,
               subtitle: loc.switchesSidebarSubTitle,
               isDark: isDark,
@@ -92,7 +105,7 @@ class SideBar extends StatelessWidget {
               }),
           _navItem(
               context: context,
-              icon: Icons.play_circle,
+              icon: Icons.rule,
               title: loc.ruleSidebarTitle,
               subtitle: loc.rulesSidebarSubTitle,
               isDark: isDark,
@@ -102,9 +115,9 @@ class SideBar extends StatelessWidget {
               selected: selectedIndex == 3),
           _navItem(
               context: context,
-              icon: Icons.system_security_update,
-              title: loc.sysInfoSidebarTitle,
-              subtitle: loc.sysInfoSidebarSubTitle,
+              icon: Icons.emoji_objects,
+              title: loc.thingsSidebarTitle,
+              subtitle: loc.thingsSidebarSubTitle,
               isDark: isDark,
               onTap: () {
                 _navItemClicked(context, 4);
@@ -112,13 +125,32 @@ class SideBar extends StatelessWidget {
               selected: selectedIndex == 4),
           _navItem(
               context: context,
-              icon: Icons.settings,
-              title: loc.settingsSideBarTitle,
+              icon: Icons.info,
+              title: loc.sysInfoSidebarTitle,
+              subtitle: loc.sysInfoSidebarSubTitle,
               isDark: isDark,
               onTap: () {
                 _navItemClicked(context, 5);
               },
               selected: selectedIndex == 5),
+          _navItem(
+              context: context,
+              icon: Icons.settings,
+              title: loc.settingsSideBarTitle,
+              isDark: isDark,
+              onTap: () {
+                _navItemClicked(context, 6);
+              },
+              selected: selectedIndex == 6),
+          _navItem(
+              context: context,
+              icon: Icons.help,
+              title: loc.aboutSideBarTitle,
+              isDark: isDark,
+              onTap: () {
+                _navItemClicked(context, 7);
+              },
+              selected: selectedIndex == 7),
         ],
       ),
     );
