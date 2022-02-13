@@ -4,33 +4,62 @@ import 'package:openhab_client/models/rule.dart';
 import 'package:openhab_client/page_wrapper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:openhab_client/rule_widget.dart';
+import 'package:openhab_client/search_widget.dart';
 import 'package:openhab_client/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
-class RulesHome extends StatelessWidget {
+class RulesHome extends StatefulWidget {
   const RulesHome({Key? key}) : super(key: key);
+
+  @override
+  State<RulesHome> createState() => _RulesHomeState();
+}
+
+class _RulesHomeState extends State<RulesHome> {
+  final _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() {});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     ItemGroupsProvider items = context.watch<ItemGroupsProvider>();
-    List<Rule> rs = items.rules;
+    List<Rule> rs = items.rules
+        .where((rule) =>
+            rule.name!
+                .toLowerCase()
+                .contains(_searchController.text.toLowerCase()) ||
+            _searchController.text.isEmpty)
+        .toList();
     AppLocalizations loc = AppLocalizations.of(context)!;
     SafeArea body = SafeArea(
-        child: ListView.builder(
-            itemCount: rs.length,
-            itemBuilder: (BuildContext context, int index) {
-              Rule rule = rs[index];
-              RuleWidget r = RuleWidget(
-                name: rule.name ?? loc.noName,
-                state: rule.state ?? false,
-                stateCallback: (st) => switchState(
-                    st, rule.uuid, items.auth, items.apiToken, context, rule),
-                runCallback: () =>
-                    execute(rule.uuid, items.auth, items.apiToken, context),
-              );
-              return r;
-            }));
+        child: Column(
+      children: [
+        SearchWidget(controller: _searchController),
+        Expanded(
+          child: ListView.builder(
+              itemCount: rs.length,
+              itemBuilder: (BuildContext context, int index) {
+                Rule rule = rs[index];
+                RuleWidget r = RuleWidget(
+                  name: rule.name ?? loc.noName,
+                  state: rule.state ?? false,
+                  stateCallback: (st) => switchState(
+                      st, rule.uuid, items.auth, items.apiToken, context, rule),
+                  runCallback: () =>
+                      execute(rule.uuid, items.auth, items.apiToken, context),
+                );
+                return r;
+              }),
+        ),
+      ],
+    ));
 
     return body;
   }

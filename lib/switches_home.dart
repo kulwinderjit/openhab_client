@@ -3,15 +3,29 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:openhab_client/models/EnrichedItemDTO.dart';
 import 'package:openhab_client/models/ItemGroupsProvider.dart';
-import 'package:openhab_client/page_wrapper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:openhab_client/search_widget.dart';
 import 'package:openhab_client/switch_widget.dart';
 import 'package:openhab_client/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
-class SwitchesHome extends StatelessWidget {
+class SwitchesHome extends StatefulWidget {
   const SwitchesHome({Key? key}) : super(key: key);
+
+  @override
+  State<SwitchesHome> createState() => _SwitchesHomeState();
+}
+
+class _SwitchesHomeState extends State<SwitchesHome> {
+  final _searchController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() {});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,55 +33,78 @@ class SwitchesHome extends StatelessWidget {
     AppLocalizations loc = AppLocalizations.of(context)!;
     SplayTreeMap<String, List<EnrichedItemDTO>> switchGroups =
         items.switchGroups;
-    Widget body = ListView.builder(
-      itemCount: switchGroups.length,
-      itemBuilder: (context, idx) {
-        MapEntry<String, List<EnrichedItemDTO>> entry =
-            switchGroups.entries.elementAt(idx);
-        String groupName = entry.key;
-        List<EnrichedItemDTO> switches = entry.value;
-        List<Widget> buttons = [];
-        for (EnrichedItemDTO s in switches) {
-          buttons.add(SwitchWidget(
-              name: s.label ?? s.name ?? loc.noName,
-              state: (s.state ?? Utils.off) == Utils.onN,
-              callback: (st) {
-                return switchState(st, s.link ?? '', items.auth, context, s);
-              }));
-        }
-        return Card(
-          elevation: 5,
-          margin: const EdgeInsets.all(10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Card(
-                elevation: 2,
-                color: Theme.of(context).primaryColor.withAlpha(150),
-                child: ListTile(
-                  title: Text(groupName),
-                  textColor: Colors.white,
-                  leading: const Icon(
-                    Icons.roofing_rounded,
-                    color: Colors.white,
-                  ),
+    List<MapEntry<String, List<EnrichedItemDTO>>> filterMap =
+        switchGroups.entries
+            .map((e) {
+              List<EnrichedItemDTO> l = e.value
+                  .where((element) =>
+                      (element.label ?? element.name)!
+                          .toLowerCase()
+                          .contains(_searchController.text.toLowerCase()) ||
+                      _searchController.text.isEmpty)
+                  .toList();
+              MapEntry<String, List<EnrichedItemDTO>> m = MapEntry(e.key, l);
+              return m;
+            })
+            .where((element) => element.value.length > 0)
+            .toList();
+    Widget body = SafeArea(
+        child: Column(
+      children: [
+        SearchWidget(controller: _searchController),
+        Expanded(
+          child: ListView.builder(
+            itemCount: filterMap.length,
+            itemBuilder: (context, idx) {
+              MapEntry<String, List<EnrichedItemDTO>> entry = filterMap[idx];
+              String groupName = entry.key;
+              List<EnrichedItemDTO> switches = entry.value;
+              List<Widget> buttons = [];
+              for (EnrichedItemDTO s in switches) {
+                buttons.add(SwitchWidget(
+                    name: s.label ?? s.name ?? loc.noName,
+                    state: (s.state ?? Utils.off) == Utils.onN,
+                    callback: (st) {
+                      return switchState(
+                          st, s.link ?? '', items.auth, context, s);
+                    }));
+              }
+              return Card(
+                elevation: 5,
+                margin: const EdgeInsets.all(10),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Card(
+                      elevation: 2,
+                      color: Theme.of(context).primaryColor.withAlpha(150),
+                      child: ListTile(
+                        title: Text(groupName),
+                        textColor: Colors.white,
+                        leading: const Icon(
+                          Icons.roofing_rounded,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    Wrap(
+                      children: [...buttons],
+                      alignment: WrapAlignment.start,
+                      crossAxisAlignment: WrapCrossAlignment.end,
+                      direction: Axis.horizontal,
+                      verticalDirection: VerticalDirection.down,
+                      spacing: 15,
+                      runSpacing: 15,
+                    ),
+                    const Padding(padding: EdgeInsets.all(10)),
+                  ],
                 ),
-              ),
-              Wrap(
-                children: [...buttons],
-                alignment: WrapAlignment.start,
-                crossAxisAlignment: WrapCrossAlignment.end,
-                direction: Axis.horizontal,
-                verticalDirection: VerticalDirection.down,
-                spacing: 15,
-                runSpacing: 15,
-              ),
-              const Padding(padding: EdgeInsets.all(10)),
-            ],
+              );
+            },
           ),
-        );
-      },
-    );
+        ),
+      ],
+    ));
     return body;
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:openhab_client/models/ItemGroupsProvider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:openhab_client/search_widget.dart';
 import 'package:openhab_client/thing_widget.dart';
 import 'package:openhab_client/utils.dart';
 import 'package:provider/provider.dart';
@@ -8,27 +9,55 @@ import 'package:http/http.dart' as http;
 
 import 'models/thing.dart';
 
-class ThingsHome extends StatelessWidget {
+class ThingsHome extends StatefulWidget {
   const ThingsHome({Key? key}) : super(key: key);
+
+  @override
+  State<ThingsHome> createState() => _ThingsHomeState();
+}
+
+class _ThingsHomeState extends State<ThingsHome> {
+  final _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() {});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     ItemGroupsProvider items = context.watch<ItemGroupsProvider>();
-    List<Thing> rs = items.things;
+    List<Thing> rs = items.things
+        .where((rule) =>
+            rule.name!
+                .toLowerCase()
+                .contains(_searchController.text.toLowerCase()) ||
+            _searchController.text.isEmpty)
+        .toList();
     AppLocalizations loc = AppLocalizations.of(context)!;
     SafeArea body = SafeArea(
-        child: ListView.builder(
-            itemCount: rs.length,
-            itemBuilder: (BuildContext context, int index) {
-              Thing thing = rs[index];
-              ThingWidget r = ThingWidget(
-                name: thing.name ?? loc.noName,
-                state: thing.state ?? false,
-                stateCallback: (st) => switchState(
-                    st, thing.uuid, items.auth, items.apiToken, context, thing),
-              );
-              return r;
-            }));
+        child: Column(
+      children: [
+        SearchWidget(controller: _searchController),
+        Expanded(
+          child: ListView.builder(
+              itemCount: rs.length,
+              itemBuilder: (BuildContext context, int index) {
+                Thing thing = rs[index];
+                ThingWidget r = ThingWidget(
+                  name: thing.name ?? loc.noName,
+                  state: thing.state ?? false,
+                  stateCallback: (st) => switchState(st, thing.uuid, items.auth,
+                      items.apiToken, context, thing),
+                );
+                return r;
+              }),
+        ),
+      ],
+    ));
 
     return body;
   }
