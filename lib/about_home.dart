@@ -9,7 +9,12 @@ class AboutHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations loc = AppLocalizations.of(context)!;
-    Color textColor = Theme.of(context).primaryColor;
+    Color textColor;
+    if (Theme.of(context).brightness == Brightness.dark) {
+      textColor = Colors.white70;
+    } else {
+      textColor = Theme.of(context).primaryColor;
+    }
     Color cardColor = Colors.white;
     return SafeArea(
       child: Column(
@@ -55,10 +60,13 @@ class AboutHome extends StatelessWidget {
             ),
             color: cardColor,
             child: ListTile(
-              leading: Icon(Typicons.social_github),
+              leading: Icon(
+                Typicons.social_github,
+                color: Theme.of(context).primaryColor,
+              ),
               title: Text(
                 loc.github,
-                style: TextStyle(color: textColor),
+                style: TextStyle(color: Theme.of(context).primaryColor),
               ),
               onTap: () => launch(loc.githubUrl),
             ),

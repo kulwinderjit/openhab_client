@@ -55,7 +55,7 @@ class ThingWidgetState extends State<ThingWidget> {
               widget._name,
               style: const TextStyle(color: Colors.white),
             )),
-            color: Theme.of(context).primaryColor.withAlpha(150)),
+            color: Theme.of(context).primaryColor),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(

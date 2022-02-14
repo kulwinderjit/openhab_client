@@ -1,5 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:openhab_client/about_home.dart';
+import 'package:openhab_client/models/EnrichedItemDTO.dart';
+import 'package:openhab_client/models/ItemGroupsProvider.dart';
+import 'package:openhab_client/models/rule.dart';
+import 'package:openhab_client/models/thing.dart';
 import 'package:openhab_client/refresh_icon.dart';
 import 'package:openhab_client/rules_home.dart';
 import 'package:openhab_client/sensors_home.dart';
@@ -9,6 +15,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:openhab_client/switches_home.dart';
 import 'package:openhab_client/system_info.dart';
 import 'package:openhab_client/things_home.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PageWrapper extends StatefulWidget {
@@ -30,11 +37,45 @@ class PageWrapperState extends State<PageWrapper> {
     SharedPreferences.getInstance().then((prefs) {
       displayName = prefs.get('displayName')?.toString();
       userName = prefs.get('username')?.toString();
-      setState(() {
-        if (userName == null || userName!.isEmpty) {
+      String? password = prefs.get('password')?.toString();
+      String? apiToken = prefs.get('apitoken')?.toString();
+      String? switches = prefs.get('switches')?.toString();
+      String? rules = prefs.get('rules')?.toString();
+      String? things = prefs.get('things')?.toString();
+      ItemGroupsProvider items =
+          Provider.of<ItemGroupsProvider>(context, listen: false);
+      if (switches != null) {
+        List<EnrichedItemDTO> switchList = (jsonDecode(switches) as List)
+            .map((e) => EnrichedItemDTO.fromJson(e))
+            .toList();
+        Future.delayed(Duration.zero, () {
+          items.addSwitches(switchList);
+        });
+      }
+      if (rules != null) {
+        List<Rule> ruleList =
+            (jsonDecode(rules) as List).map((e) => Rule.fromJson(e)).toList();
+        Future.delayed(Duration.zero, () {
+          items.addRules(ruleList);
+        });
+      }
+      if (things != null) {
+        List<Thing> thingList =
+            (jsonDecode(things) as List).map((e) => Thing.fromJson(e)).toList();
+        Future.delayed(Duration.zero, () {
+          items.addThings(thingList);
+        });
+      }
+      if (userName == null || userName!.isEmpty) {
+        setState(() {
           navIndex = 6;
-        }
-      });
+        });
+      } else {
+        String basicAuth =
+            'Basic ' + base64Encode(utf8.encode('$userName:$password'));
+        items.auth = basicAuth;
+        items.apiToken = apiToken;
+      }
     });
   }
 
@@ -84,10 +125,6 @@ class PageWrapperState extends State<PageWrapper> {
       appBar: AppBar(
         title: Text(title!),
         actions: showRefresh ? const [RefreshIcon()] : null,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(5),
-                bottomRight: Radius.circular(5))),
       ),
       body: Builder(
         builder: (context) {

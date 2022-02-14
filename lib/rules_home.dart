@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:openhab_client/models/ItemGroupsProvider.dart';
 import 'package:openhab_client/models/rule.dart';
-import 'package:openhab_client/page_wrapper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:openhab_client/rule_widget.dart';
 import 'package:openhab_client/search_widget.dart';
@@ -103,7 +102,7 @@ class _RulesHomeState extends State<RulesHome> {
     var url = Uri.parse(Utils.enableRuleUrl.replaceAll('{uuid}', uuid!));
     if (auth == null || apiToken == null) {
       Utils.makeToast(context, loc.noCredentialsMsg);
-      return state;
+      return !state;
     }
     bool _state = state;
     var hdrs = <String, String>{

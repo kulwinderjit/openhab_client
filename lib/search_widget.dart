@@ -15,19 +15,17 @@ class SearchWidget extends StatelessWidget {
           autocorrect: false,
           enableSuggestions: false,
           decoration: InputDecoration(
-            contentPadding: EdgeInsets.all(5),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide:
-                  BorderSide(color: Theme.of(context).primaryColor, width: 2.0),
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            prefixIcon: const Icon(Icons.search),
-            filled: false,
-            fillColor: Colors.grey[100],
-          )),
+              contentPadding: EdgeInsets.all(5),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                    color: Theme.of(context).primaryColor, width: 2.0),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              prefixIcon: const Icon(Icons.search),
+              filled: false)),
     );
   }
 }

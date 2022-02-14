@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:openhab_client/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -59,7 +60,6 @@ class _SettingsHomeState extends State<SettingsHome> {
             .encode('${_usernameController.text}:${_passwordController.text}'));
     bool tested =
         await testCredentials(basicAuth, _apiTokenController.text, context);
-    print(tested);
     if (tested) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('username', _usernameController.text);
@@ -77,6 +77,12 @@ class _SettingsHomeState extends State<SettingsHome> {
   @override
   Widget build(BuildContext context) {
     AppLocalizations loc = AppLocalizations.of(context)!;
+    Color buttonColor;
+    if (Theme.of(context).brightness == Brightness.dark) {
+      buttonColor = Colors.white70;
+    } else {
+      buttonColor = Theme.of(context).primaryColor;
+    }
     Card body = Card(
       elevation: 5,
       child: Wrap(
@@ -146,6 +152,18 @@ class _SettingsHomeState extends State<SettingsHome> {
               labelText: loc.apiToken,
               errorText: tokenEmpty ? loc.apiTokenRequired : null,
               prefixIcon: const Icon(Icons.api),
+              suffixIcon: IconButton(
+                icon: Icon(Icons.content_paste),
+                onPressed: () {
+                  Clipboard.getData('text/plain').then((value) {
+                    setState(() {
+                      if (value != null && value.text != null) {
+                        _apiTokenController.text = value.text!;
+                      }
+                    });
+                  });
+                },
+              ),
             ),
           ),
           ButtonBar(
@@ -153,8 +171,7 @@ class _SettingsHomeState extends State<SettingsHome> {
             children: [
               ElevatedButton(
                 style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(
-                        Theme.of(context).primaryColor.withAlpha(150))),
+                    backgroundColor: MaterialStateProperty.all(buttonColor)),
                 onPressed: () {
                   _save(context, loc);
                 },
@@ -180,8 +197,6 @@ class _SettingsHomeState extends State<SettingsHome> {
     AppLocalizations loc = AppLocalizations.of(context)!;
     var url = Uri.parse(Utils.thingsUrl);
     bool _state = false;
-    print(auth);
-    print(apiToken);
     if (auth == null || apiToken == null) {
       Utils.makeToast(context, loc.noCredentialsMsg);
       return _state;

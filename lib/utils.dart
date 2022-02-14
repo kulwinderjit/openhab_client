@@ -10,7 +10,8 @@ class Utils {
   static const String enableThingUrl =
       'https://home.myopenhab.org/rest/things/{uuid}/enable';
 
-  static const String itemsUrl = 'https://home.myopenhab.org/rest/items';
+  static const String itemsUrl =
+      'https://home.myopenhab.org/rest/items?fields=label%2Cstate%2Clink%2Cname%2Ctype%2CgroupNames';
 
   static const String systeminfoUrl =
       'https://home.myopenhab.org/rest/systeminfo';
@@ -25,11 +26,15 @@ class Utils {
   static const String off = "OFF";
 
   static makeToast(BuildContext context, String message) {
+    Color backColor;
+    if (Theme.of(context).brightness == Brightness.dark) {
+      backColor = Colors.white70;
+    } else {
+      backColor = Theme.of(context).primaryColor;
+    }
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10))),
       content: Text(message),
-      backgroundColor: Theme.of(context).primaryColor,
+      backgroundColor: backColor,
     ));
   }
 }

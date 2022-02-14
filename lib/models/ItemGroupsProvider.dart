@@ -27,6 +27,19 @@ class ItemGroupsProvider extends ChangeNotifier {
   UnmodifiableListView<Rule> get rules => UnmodifiableListView(_rules);
   UnmodifiableListView<Thing> get things => UnmodifiableListView(_things);
 
+  addSwitches(List<EnrichedItemDTO> switchList) {
+    for (EnrichedItemDTO item in switchList) {
+      String? group = item.groupName.isNotEmpty ? item.groupName : 'All';
+      if (_switchesGroups.containsKey(group)) {
+        _switchesGroups[group]!.add(item);
+      } else {
+        _switchesGroups[group] = [];
+        _switchesGroups[group]!.add(item);
+      }
+    }
+    notifyListeners();
+  }
+
   Future<bool> refresh() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userName = prefs.get('username')?.toString();
@@ -48,9 +61,23 @@ class ItemGroupsProvider extends ChangeNotifier {
         var value = await http.get(itemsUri, headers: hdrs);
         final List<EnrichedItemDTO> _switches = [];
         List<EnrichedItemDTO> sensors = [];
-        List<EnrichedItemDTO> items = (conv.jsonDecode(value.body) as List)
-            .map((e) => EnrichedItemDTO.fromJson(e))
-            .toList();
+        List<EnrichedItemDTO> items =
+            (conv.jsonDecode(value.body) as List).map((e) {
+          String label = e['label'] ?? '';
+          String name = e['name'] ?? '';
+          String type = e['type'] ?? '';
+          String state = e['state'] ?? '';
+          String link = e['link'] ?? '';
+          List groups = (e['groupNames'] as List);
+          String group = groups.length > 0 ? groups[0] : '';
+          return EnrichedItemDTO(
+              label: label,
+              link: link,
+              name: name,
+              state: state,
+              type: type,
+              groupName: group);
+        }).toList();
         for (EnrichedItemDTO item in items) {
           if (item.type == 'Switch') {
             if (!_switches.any((element) => element.link == item.link)) {
@@ -64,25 +91,23 @@ class ItemGroupsProvider extends ChangeNotifier {
         }
         _switchesGroups.clear();
         for (EnrichedItemDTO item in _switches) {
-          String? group = item.groupNames?.isNotEmpty ?? false
-              ? item.groupNames?.first
-              : 'All';
+          String? group = item.groupName.isNotEmpty ? item.groupName : 'All';
           if (_switchesGroups.containsKey(group)) {
             _switchesGroups[group]!.add(item);
           } else {
-            _switchesGroups[group ?? 'All'] = [];
+            _switchesGroups[group] = [];
             _switchesGroups[group]!.add(item);
           }
         }
+        prefs.setString('switches',
+            conv.jsonEncode(_switches.map((e) => e.toJson()).toList()));
         _sensorGroups.clear();
         for (EnrichedItemDTO item in sensors) {
-          String? group = item.groupNames?.isNotEmpty ?? false
-              ? item.groupNames?.first
-              : 'All';
+          String? group = item.groupName.isNotEmpty ? item.groupName : 'All';
           if (_sensorGroups.containsKey(group)) {
             _sensorGroups[group]!.add(item);
           } else {
-            _sensorGroups[group ?? 'All'] = [];
+            _sensorGroups[group] = [];
             _sensorGroups[group]!.add(item);
           }
         }
@@ -109,7 +134,8 @@ class ItemGroupsProvider extends ChangeNotifier {
             _rules.add(r);
           }
           _rules.sort((a, b) => a.name!.compareTo(b.name!));
-
+          prefs.setString(
+              'rules', conv.jsonEncode(_rules.map((e) => e.toJson()).toList()));
           var thingsResp = await http.get(thingsUri, headers: hdrs);
           _things.clear();
           for (var element in (conv.jsonDecode(thingsResp.body) as List)) {
@@ -124,6 +150,8 @@ class ItemGroupsProvider extends ChangeNotifier {
             _things.add(t);
           }
           _things.sort((a, b) => a.name!.compareTo(b.name!));
+          prefs.setString('things',
+              conv.jsonEncode(_things.map((e) => e.toJson()).toList()));
         }
         notifyListeners();
       } on Exception catch (e) {
@@ -131,5 +159,15 @@ class ItemGroupsProvider extends ChangeNotifier {
       }
     }
     return true;
+  }
+
+  void addRules(List<Rule> ruleList) {
+    _rules.addAll(ruleList);
+    notifyListeners();
+  }
+
+  void addThings(List<Thing> thingList) {
+    _things.addAll(thingList);
+    notifyListeners();
   }
 }

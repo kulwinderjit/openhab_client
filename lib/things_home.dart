@@ -68,7 +68,7 @@ class _ThingsHomeState extends State<ThingsHome> {
     var url = Uri.parse(Utils.enableThingUrl.replaceAll('{uuid}', uuid!));
     if (auth == null || apiToken == null) {
       Utils.makeToast(context, loc.noCredentialsMsg);
-      return state;
+      return !state;
     }
     bool _state = state;
     var hdrs = <String, String>{

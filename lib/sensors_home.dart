@@ -34,7 +34,7 @@ class _SensorsHomeState extends State<SensorsHome> {
             .map((e) {
               List<EnrichedItemDTO> l = e.value
                   .where((element) =>
-                      (element.label ?? element.name)!
+                      (element.label.isEmpty ? element.name : element.label)
                           .toLowerCase()
                           .contains(_searchController.text.toLowerCase()) ||
                       _searchController.text.isEmpty)
@@ -58,9 +58,9 @@ class _SensorsHomeState extends State<SensorsHome> {
                 List<TableRow> rows = [];
                 for (EnrichedItemDTO s in sensors) {
                   rows.add(TableRow(children: [
-                    SelectableText(s.label ?? s.name ?? loc.noName,
+                    SelectableText(s.label.isEmpty ? s.name : s.label,
                         textScaleFactor: 1.1),
-                    SelectableText(s.state ?? loc.noValue,
+                    SelectableText(s.state.isEmpty ? loc.noValue : s.state,
                         textScaleFactor: 1.1),
                   ]));
                 }

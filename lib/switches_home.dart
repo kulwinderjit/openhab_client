@@ -30,7 +30,6 @@ class _SwitchesHomeState extends State<SwitchesHome> {
   @override
   Widget build(BuildContext context) {
     ItemGroupsProvider items = context.watch<ItemGroupsProvider>();
-    AppLocalizations loc = AppLocalizations.of(context)!;
     SplayTreeMap<String, List<EnrichedItemDTO>> switchGroups =
         items.switchGroups;
     List<MapEntry<String, List<EnrichedItemDTO>>> filterMap =
@@ -38,7 +37,7 @@ class _SwitchesHomeState extends State<SwitchesHome> {
             .map((e) {
               List<EnrichedItemDTO> l = e.value
                   .where((element) =>
-                      (element.label ?? element.name)!
+                      (element.label.isEmpty ? element.name : element.label)
                           .toLowerCase()
                           .contains(_searchController.text.toLowerCase()) ||
                       _searchController.text.isEmpty)
@@ -62,11 +61,10 @@ class _SwitchesHomeState extends State<SwitchesHome> {
               List<Widget> buttons = [];
               for (EnrichedItemDTO s in switches) {
                 buttons.add(SwitchWidget(
-                    name: s.label ?? s.name ?? loc.noName,
-                    state: (s.state ?? Utils.off) == Utils.onN,
+                    name: s.label.isEmpty ? s.name : s.label,
+                    state: (s.state) == Utils.onN,
                     callback: (st) {
-                      return switchState(
-                          st, s.link ?? '', items.auth, context, s);
+                      return switchState(st, s.link, items.auth, context, s);
                     }));
               }
               return Card(
@@ -110,10 +108,11 @@ class _SwitchesHomeState extends State<SwitchesHome> {
 
   Future<bool> switchState(bool state, String? url, String? auth,
       BuildContext context, EnrichedItemDTO item) async {
-    if (url == null || auth == null) {
-      return state;
-    }
     AppLocalizations loc = AppLocalizations.of(context)!;
+    if (url == null || auth == null) {
+      Utils.makeToast(context, loc.noCredentialsMsg);
+      return !state;
+    }
     bool _state = state;
     var hdrs = <String, String>{
       'authorization': auth,

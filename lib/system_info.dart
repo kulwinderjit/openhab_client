@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:openhab_client/models/ItemGroupsProvider.dart';
-import 'package:openhab_client/page_wrapper.dart';
 import 'package:provider/src/provider.dart';
 
 class SystemInfo extends StatelessWidget {

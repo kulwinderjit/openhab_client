@@ -1,38 +1,33 @@
-import 'package:json_annotation/json_annotation.dart';
-import 'package:openhab_client/models/CommandDescription.dart';
-import 'package:openhab_client/models/StateDescription.dart';
-part 'EnrichedItemDTO.g.dart';
-
-@JsonSerializable(explicitToJson: true)
 class EnrichedItemDTO {
-  EnrichedItemDTO(
-      {this.type,
-      this.name,
-      this.label,
-      this.category,
-      this.tags,
-      this.groupNames,
-      this.link,
-      this.state,
-      this.transformedState,
-      this.stateDescription,
-      this.commandDescription,
-      this.metadata,
-      this.editable});
-  String? type;
-  String? name;
-  String? label;
-  String? category;
-  Set<String>? tags;
-  Set<String>? groupNames;
-  String? link;
-  String? state;
-  String? transformedState;
-  StateDescription? stateDescription;
-  CommandDescription? commandDescription;
-  dynamic metadata;
-  bool? editable;
-  factory EnrichedItemDTO.fromJson(Map<String, dynamic> json) =>
-      _$EnrichedItemDTOFromJson(json);
-  Map<String, dynamic> toJson() => _$EnrichedItemDTOToJson(this);
+  EnrichedItemDTO({
+    required this.type,
+    required this.name,
+    required this.label,
+    required this.link,
+    required this.state,
+    required this.groupName,
+  });
+  late final String type;
+  late final String name;
+  late final String label;
+  late final String groupName;
+  late final String link;
+  String state;
+
+  EnrichedItemDTO.fromJson(Map<String, dynamic> json)
+      : type = json['type'],
+        name = json['name'],
+        label = json['label'],
+        groupName = json['groupName'],
+        link = json['link'],
+        state = json['state'];
+
+  Map<String, dynamic> toJson() => {
+        'type': type,
+        'name': name,
+        'label': label,
+        'groupName': groupName,
+        'link': link,
+        'state': state
+      };
 }
