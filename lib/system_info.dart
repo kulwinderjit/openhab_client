@@ -10,35 +10,50 @@ class SystemInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     ItemGroupsProvider items = context.watch<ItemGroupsProvider>();
     AppLocalizations loc = AppLocalizations.of(context)!;
+    ThemeData theme = Theme.of(context);
     List<TableRow> rows = [];
     for (var element in items.sysInfo.entries) {
       rows.add(TableRow(children: [
-        SelectableText(element.key, textScaleFactor: 1.1),
-        SelectableText(element.value, textScaleFactor: 1.1),
+        SelectableText(element.key, style: theme.textTheme.subtitle2),
+        SelectableText(element.value, style: theme.textTheme.subtitle2),
       ]));
     }
     SafeArea body = SafeArea(
       child: Card(
-          child: Wrap(
-        children: [
-          Card(
-            color: Theme.of(context).primaryColor.withAlpha(150),
-            child: ListTile(
-              title: Text(loc.sysInfoTitle,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600)),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Table(
-              children: rows,
-            ),
-          )
-        ],
-      )),
+          elevation: 2,
+          margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 5),
+          child: rows.length == 0
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      loc.performRefresh,
+                      style: theme.textTheme.subtitle1,
+                    ),
+                  ),
+                )
+              : Wrap(
+                  children: [
+                    Card(
+                      elevation: 4,
+                      child: ListTile(
+                        leading: Icon(
+                          Icons.info,
+                          color: theme.iconTheme.color,
+                        ),
+                        horizontalTitleGap: 0,
+                        title: Text(loc.sysInfoTitle,
+                            style: Theme.of(context).textTheme.headline6),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Table(
+                        children: rows,
+                      ),
+                    )
+                  ],
+                )),
     );
     return body;
   }

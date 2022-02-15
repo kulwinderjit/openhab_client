@@ -1,8 +1,7 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, must_be_immutable
 
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SideBar extends StatelessWidget {
   SideBar(
@@ -27,34 +26,36 @@ class SideBar extends StatelessWidget {
           required IconData icon,
           required String title,
           String? subtitle,
-          required isDark,
+          required ThemeData theme,
           required Function() onTap,
           required bool selected}) =>
-      Container(
-        decoration: ShapeDecoration(
-            color: selected
-                ? isDark
-                    ? Colors.grey.shade500
-                    : Colors.grey.shade300
-                : Colors.transparent,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(20)),
-            )),
-        child: ListTile(
-          leading: Icon(icon,
-              color: selected ? Theme.of(context).primaryColor : Colors.black),
-          title: Text(title),
-          subtitle: Text(subtitle ?? ''),
-          selected: selected,
-          onTap: onTap,
+      Padding(
+        padding: const EdgeInsets.only(left: 3, right: 3),
+        child: Container(
+          decoration: BoxDecoration(
+              color:
+                  selected ? theme.scaffoldBackgroundColor : Colors.transparent,
+              borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(10),
+                  bottomLeft: Radius.circular(10),
+                  topLeft: Radius.circular(10),
+                  bottomRight: Radius.circular(10))),
+          child: ListTile(
+            leading: Icon(
+              icon,
+            ),
+            title: Text(title),
+            subtitle: Text(subtitle ?? ''),
+            selected: selected,
+            onTap: onTap,
+          ),
         ),
       );
 
   @override
   Widget build(BuildContext context) {
     AppLocalizations loc = AppLocalizations.of(context)!;
-    bool isDark = Theme.of(context).brightness == Brightness.dark;
-
+    ThemeData theme = Theme.of(context);
     return Drawer(
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
@@ -66,14 +67,14 @@ class SideBar extends StatelessWidget {
           userName == null
               ? DrawerHeader(
                   decoration:
-                      BoxDecoration(color: Theme.of(context).primaryColor),
+                      BoxDecoration(color: theme.appBarTheme.backgroundColor),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         loc.noCredentials,
-                        style: TextStyle(fontSize: 14, color: Colors.white),
+                        style: theme.primaryTextTheme.subtitle1,
                       ),
                     ],
                   ),
@@ -81,14 +82,13 @@ class SideBar extends StatelessWidget {
               : UserAccountsDrawerHeader(
                   accountName: Text(displayName ?? loc.displayName),
                   accountEmail: Text(userName!),
-                  arrowColor: Colors.amberAccent,
                 ),
           _navItem(
               context: context,
               icon: Icons.toggle_on,
               title: loc.switchesSidebarTitle,
               subtitle: loc.switchesSidebarSubTitle,
-              isDark: isDark,
+              theme: theme,
               selected: selectedIndex == 1,
               onTap: () {
                 _navItemClicked(context, 1);
@@ -98,7 +98,7 @@ class SideBar extends StatelessWidget {
               icon: Icons.sensors_rounded,
               title: loc.sensorsSidebarTitle,
               subtitle: loc.sensorsSidebarSubTitle,
-              isDark: isDark,
+              theme: theme,
               selected: selectedIndex == 2,
               onTap: () {
                 _navItemClicked(context, 2);
@@ -108,7 +108,7 @@ class SideBar extends StatelessWidget {
               icon: Icons.rule,
               title: loc.ruleSidebarTitle,
               subtitle: loc.rulesSidebarSubTitle,
-              isDark: isDark,
+              theme: theme,
               onTap: () {
                 _navItemClicked(context, 3);
               },
@@ -118,7 +118,7 @@ class SideBar extends StatelessWidget {
               icon: Icons.emoji_objects,
               title: loc.thingsSidebarTitle,
               subtitle: loc.thingsSidebarSubTitle,
-              isDark: isDark,
+              theme: theme,
               onTap: () {
                 _navItemClicked(context, 4);
               },
@@ -128,7 +128,7 @@ class SideBar extends StatelessWidget {
               icon: Icons.info,
               title: loc.sysInfoSidebarTitle,
               subtitle: loc.sysInfoSidebarSubTitle,
-              isDark: isDark,
+              theme: theme,
               onTap: () {
                 _navItemClicked(context, 5);
               },
@@ -137,7 +137,7 @@ class SideBar extends StatelessWidget {
               context: context,
               icon: Icons.settings,
               title: loc.settingsSideBarTitle,
-              isDark: isDark,
+              theme: theme,
               onTap: () {
                 _navItemClicked(context, 6);
               },
@@ -146,7 +146,7 @@ class SideBar extends StatelessWidget {
               context: context,
               icon: Icons.help,
               title: loc.aboutSideBarTitle,
-              isDark: isDark,
+              theme: theme,
               onTap: () {
                 _navItemClicked(context, 7);
               },

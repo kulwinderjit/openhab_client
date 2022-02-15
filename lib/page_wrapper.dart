@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:openhab_client/about_home.dart';
 import 'package:openhab_client/models/EnrichedItemDTO.dart';
@@ -15,11 +16,23 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:openhab_client/switches_home.dart';
 import 'package:openhab_client/system_info.dart';
 import 'package:openhab_client/things_home.dart';
+import 'package:openhab_client/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PageWrapper extends StatefulWidget {
-  const PageWrapper({Key? key}) : super(key: key);
+  const PageWrapper({
+    Key? key,
+    required this.themeMode,
+    required this.onThemeModeChanged,
+    required this.onThemeChanged,
+    required this.currentScheme,
+  }) : super(key: key);
+
+  final ThemeMode themeMode;
+  final ValueChanged<ThemeMode> onThemeModeChanged;
+  final ValueChanged<FlexScheme> onThemeChanged;
+  final FlexScheme currentScheme;
 
   @override
   State<StatefulWidget> createState() => PageWrapperState();
@@ -30,6 +43,7 @@ class PageWrapperState extends State<PageWrapper> {
   String? title;
   String? displayName;
   String? userName;
+  bool isDemo = false;
 
   @override
   void initState() {
@@ -42,6 +56,7 @@ class PageWrapperState extends State<PageWrapper> {
       String? switches = prefs.get('switches')?.toString();
       String? rules = prefs.get('rules')?.toString();
       String? things = prefs.get('things')?.toString();
+      isDemo = prefs.getBool('isDemo') ?? false;
       ItemGroupsProvider items =
           Provider.of<ItemGroupsProvider>(context, listen: false);
       if (switches != null) {
@@ -76,6 +91,29 @@ class PageWrapperState extends State<PageWrapper> {
         items.auth = basicAuth;
         items.apiToken = apiToken;
       }
+    });
+  }
+
+  void _dataRefresh() {
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setBool('isDemo', false);
+      setState(() {
+        isDemo = false;
+      });
+    });
+  }
+
+  void _demoData(BuildContext context, AppLocalizations loc) {
+    ItemGroupsProvider items =
+        Provider.of<ItemGroupsProvider>(context, listen: false);
+    items.dummyData(context).then((value) {
+      Utils.makeToast(context, loc.genDemoDataDone);
+      SharedPreferences.getInstance().then((prefs) {
+        prefs.setBool('isDemo', true);
+        setState(() {
+          isDemo = true;
+        });
+      });
     });
   }
 
@@ -121,10 +159,19 @@ class PageWrapperState extends State<PageWrapper> {
       default:
         title = loc.appTitle;
     }
+    if (isDemo && navIndex >= 1 && navIndex <= 5) {
+      title = '${loc.demo} $title';
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(title!),
-        actions: showRefresh ? const [RefreshIcon()] : null,
+        actions: showRefresh
+            ? [
+                RefreshIcon(
+                  callback: _dataRefresh,
+                )
+              ]
+            : null,
       ),
       body: Builder(
         builder: (context) {
@@ -140,7 +187,16 @@ class PageWrapperState extends State<PageWrapper> {
             case 5:
               return const SystemInfo();
             case 6:
-              return SettingsHome(callback: _settingsVerified);
+              return SettingsHome(
+                demoCallback: () {
+                  _demoData(context, loc);
+                },
+                callback: _settingsVerified,
+                themeMode: widget.themeMode,
+                onThemeModeChanged: widget.onThemeModeChanged,
+                onThemeChanged: widget.onThemeChanged,
+                currentScheme: widget.currentScheme,
+              );
             case 7:
               return const AboutHome();
             default:

@@ -3,7 +3,8 @@ import 'package:openhab_client/models/ItemGroupsProvider.dart';
 import 'package:provider/provider.dart';
 
 class RefreshIcon extends StatefulWidget {
-  const RefreshIcon({Key? key}) : super(key: key);
+  RefreshIcon({Key? key, required this.callback}) : super(key: key);
+  late final Function callback;
 
   @override
   State<StatefulWidget> createState() => RefreshIconState();
@@ -12,17 +13,21 @@ class RefreshIcon extends StatefulWidget {
 class RefreshIconState extends State<RefreshIcon> {
   bool isRefreshing = false;
 
-  void perfromRefresh(ItemGroupsProvider it) async {
+  void perfromRefresh(ItemGroupsProvider it, BuildContext context) async {
     setState(() {
       isRefreshing = true;
     });
-    it.refresh().whenComplete(() => setState(() {
-          isRefreshing = false;
-        }));
+    it.refresh(context).whenComplete(() {
+      setState(() {
+        isRefreshing = false;
+      });
+      widget.callback();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
     ItemGroupsProvider it =
         Provider.of<ItemGroupsProvider>(context, listen: false);
     Widget retWidget;
@@ -35,15 +40,15 @@ class RefreshIconState extends State<RefreshIcon> {
                   margin: const EdgeInsets.only(top: 5, right: 3),
                   height: 24,
                   width: 24,
-                  child: const CircularProgressIndicator(color: Colors.white))
+                  child: CircularProgressIndicator(
+                      color: theme.appBarTheme.iconTheme!.color))
             ],
           ));
     } else {
       retWidget = IconButton(
-        onPressed: () => perfromRefresh(it),
+        onPressed: () => perfromRefresh(it, context),
         icon: const Icon(
           Icons.refresh_sharp,
-          color: Colors.white,
         ),
         iconSize: 36,
         padding: const EdgeInsets.only(right: 20),

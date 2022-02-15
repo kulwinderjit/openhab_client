@@ -1,17 +1,41 @@
+// ignore_for_file: must_be_immutable
+
+import 'package:flex_color_scheme/flex_color_scheme.dart';
+// ignore: unnecessary_import
+import 'package:flex_color_scheme/src/flex_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:openhab_client/theme_choser.dart';
+import 'package:openhab_client/theme_mode_switch.dart';
 import 'package:openhab_client/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as conv;
 
 class SettingsHome extends StatefulWidget {
-  SettingsHome({Key? key, required Function callback}) : super(key: key) {
+  SettingsHome(
+      {Key? key,
+      required Function callback,
+      required Function demoCallback,
+      required themeMode,
+      required onThemeModeChanged,
+      required ValueChanged<FlexScheme> onThemeChanged,
+      required FlexScheme currentScheme})
+      : super(key: key) {
     this._callback = callback;
+    this._themeMode = themeMode;
+    this._onThemeModeChanged = onThemeModeChanged;
+    this._onThemeChanged = onThemeChanged;
+    this._currentScheme = currentScheme;
+    this._demoCallback = demoCallback;
   }
-
-  late Function _callback;
+  late final ThemeMode _themeMode;
+  late final ValueChanged<ThemeMode> _onThemeModeChanged;
+  late final ValueChanged<FlexScheme> _onThemeChanged;
+  late final FlexScheme _currentScheme;
+  late final Function _callback;
+  late final Function _demoCallback;
 
   @override
   State<StatefulWidget> createState() => _SettingsHomeState();
@@ -41,6 +65,52 @@ class _SettingsHomeState extends State<SettingsHome> {
     });
   }
 
+  void themeChange(FlexScheme scheme) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('colorScheme', scheme.name);
+    widget._onThemeChanged(scheme);
+  }
+
+  void themeModeChange(ThemeMode mode) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt('themeMode', mode.index);
+    widget._onThemeModeChanged(mode);
+  }
+
+  void demoData(BuildContext context, AppLocalizations loc) async {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(loc.askGenDemoDataTitle),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(loc.genDemoDataWarn),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(loc.generate),
+              onPressed: () {
+                widget._demoCallback();
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text(loc.cancel),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _save(BuildContext context, AppLocalizations loc) async {
     String username = _usernameController.text;
     String password = _passwordController.text;
@@ -52,9 +122,7 @@ class _SettingsHomeState extends State<SettingsHome> {
       setState(() {});
       return;
     }
-    setState(() {
-      testing = true;
-    });
+    Utils.makeToast(context, loc.verifyingCredentials);
     String basicAuth = 'Basic ' +
         conv.base64Encode(conv.utf8
             .encode('${_usernameController.text}:${_passwordController.text}'));
@@ -69,126 +137,170 @@ class _SettingsHomeState extends State<SettingsHome> {
       widget._callback.call();
       Utils.makeToast(context, loc.settingsSaved);
     }
-    setState(() {
-      testing = false;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     AppLocalizations loc = AppLocalizations.of(context)!;
-    Color buttonColor;
-    if (Theme.of(context).brightness == Brightness.dark) {
-      buttonColor = Colors.white70;
-    } else {
-      buttonColor = Theme.of(context).primaryColor;
-    }
-    Card body = Card(
-      elevation: 5,
-      child: Wrap(
-        spacing: 20,
-        runSpacing: 20,
-        children: <Widget>[
-          Card(
-              elevation: 2,
-              color: Theme.of(context).primaryColor.withAlpha(150),
-              child: ListTile(
-                  title: Text(loc.credentialsTitle,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600)))),
-          TextField(
-              controller: _displayNameController,
-              autocorrect: false,
-              enableSuggestions: false,
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.smart_display_outlined),
-                filled: false,
-                fillColor: Colors.grey[100],
-                labelText: loc.displayName,
-              )),
-          TextField(
-              controller: _usernameController,
-              autocorrect: false,
-              enableSuggestions: false,
-              decoration: InputDecoration(
-                filled: false,
-                fillColor: Colors.grey[100],
-                prefixIcon: const Icon(Icons.manage_accounts),
-                labelText: loc.userName,
-                errorText: userEmpty ? loc.userNameRequired : null,
-              )),
-          TextField(
-            controller: _passwordController,
-            autocorrect: false,
-            enableSuggestions: false,
-            obscureText: !_passwordVisible,
-            obscuringCharacter: '*',
-            decoration: InputDecoration(
-              filled: false,
-              fillColor: Colors.grey[100],
-              labelText: loc.passowrd,
-              errorText: passEmpty ? loc.passwordRequired : null,
-              prefixIcon: const Icon(Icons.password),
-              suffixIcon: IconButton(
-                icon: Icon(
-                    _passwordVisible ? Icons.visibility : Icons.visibility_off),
-                onPressed: () {
-                  setState(() {
-                    _passwordVisible = !_passwordVisible;
-                  });
-                },
+    ThemeData theme = Theme.of(context);
+    ListView body = ListView(children: [
+      Card(
+        elevation: 2,
+        margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 5),
+        child: Wrap(
+          spacing: 20,
+          runSpacing: 20,
+          children: <Widget>[
+            Card(
+                elevation: 4,
+                child: ListTile(
+                    leading: Icon(
+                      Icons.settings,
+                      color: theme.iconTheme.color,
+                    ),
+                    horizontalTitleGap: 0,
+                    title: Text(loc.credentialsTitle,
+                        style: theme.textTheme.subtitle1))),
+            Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8),
+              child: TextField(
+                  controller: _displayNameController,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.smart_display_outlined),
+                    labelText: loc.displayName,
+                  )),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8),
+              child: TextField(
+                  controller: _usernameController,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.manage_accounts),
+                    labelText: loc.userName,
+                    errorText: userEmpty ? loc.userNameRequired : null,
+                  )),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8),
+              child: TextField(
+                controller: _passwordController,
+                autocorrect: false,
+                enableSuggestions: false,
+                obscureText: !_passwordVisible,
+                obscuringCharacter: '*',
+                decoration: InputDecoration(
+                  labelText: loc.passowrd,
+                  errorText: passEmpty ? loc.passwordRequired : null,
+                  prefixIcon: const Icon(Icons.password),
+                  suffixIcon: IconButton(
+                    icon: Icon(_passwordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off),
+                    onPressed: () {
+                      setState(() {
+                        _passwordVisible = !_passwordVisible;
+                      });
+                    },
+                  ),
+                ),
               ),
             ),
-          ),
-          TextField(
-            controller: _apiTokenController,
-            autocorrect: false,
-            enableSuggestions: false,
-            decoration: InputDecoration(
-              filled: false,
-              fillColor: Colors.grey[100],
-              labelText: loc.apiToken,
-              errorText: tokenEmpty ? loc.apiTokenRequired : null,
-              prefixIcon: const Icon(Icons.api),
-              suffixIcon: IconButton(
-                icon: Icon(Icons.content_paste),
-                onPressed: () {
-                  Clipboard.getData('text/plain').then((value) {
-                    setState(() {
-                      if (value != null && value.text != null) {
-                        _apiTokenController.text = value.text!;
-                      }
-                    });
-                  });
-                },
+            Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8),
+              child: TextField(
+                controller: _apiTokenController,
+                autocorrect: false,
+                enableSuggestions: false,
+                decoration: InputDecoration(
+                  labelText: loc.apiToken,
+                  errorText: tokenEmpty ? loc.apiTokenRequired : null,
+                  prefixIcon: const Icon(Icons.api),
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.content_paste),
+                    onPressed: () {
+                      Clipboard.getData('text/plain').then((value) {
+                        setState(() {
+                          if (value != null && value.text != null) {
+                            _apiTokenController.text = value.text!;
+                          }
+                        });
+                      });
+                    },
+                  ),
+                ),
               ),
             ),
-          ),
-          ButtonBar(
-            alignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(buttonColor)),
-                onPressed: () {
-                  _save(context, loc);
-                },
-                child: Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: Wrap(spacing: 10, runSpacing: 10, children: [
-                      Text(
-                        testing ? loc.verifyingCredentials : loc.save,
-                        style: const TextStyle(fontSize: 18),
-                      )
-                    ])),
-              )
-            ],
-          ),
-        ],
+            ButtonBar(
+              alignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    demoData(context, loc);
+                  },
+                  child: Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: Wrap(spacing: 10, runSpacing: 10, children: [
+                        Text(
+                          loc.genDemoData,
+                          style: theme.primaryTextTheme.headline6,
+                        )
+                      ])),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _save(context, loc);
+                  },
+                  child: Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: Wrap(spacing: 10, runSpacing: 10, children: [
+                        Text(
+                          loc.save,
+                          style: theme.primaryTextTheme.headline6,
+                        )
+                      ])),
+                )
+              ],
+            ),
+          ],
+        ),
       ),
-    );
+      Card(
+        margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 5),
+        elevation: 2,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(loc.colorScheme),
+                trailing: ThemeChoser(
+                  onSelect: themeChange,
+                  currentSheme: widget._currentScheme,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(loc.themeMode),
+                subtitle: Text('${loc.themeModeSub} '
+                    '${widget._themeMode.toString().dotTail}'),
+                trailing: ThemeModeSwitch(
+                  themeMode: widget._themeMode,
+                  onChanged: themeModeChange,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ]);
     return body;
   }
 

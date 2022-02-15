@@ -8,24 +8,21 @@ class SearchWidget extends StatelessWidget {
   late final TextEditingController _controller;
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: TextField(
-          controller: _controller,
-          autocorrect: false,
-          enableSuggestions: false,
-          decoration: InputDecoration(
-              contentPadding: EdgeInsets.all(5),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                    color: Theme.of(context).primaryColor, width: 2.0),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              prefixIcon: const Icon(Icons.search),
-              filled: false)),
+    ThemeData theme = Theme.of(context);
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(0.0),
+        child: TextField(
+            style: theme.textTheme.subtitle1,
+            controller: _controller,
+            autocorrect: false,
+            enableSuggestions: false,
+            decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search),
+                contentPadding: EdgeInsets.all(0))),
+      ),
     );
   }
 }

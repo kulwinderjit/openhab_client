@@ -29,6 +29,7 @@ class _RulesHomeState extends State<RulesHome> {
   @override
   Widget build(BuildContext context) {
     ItemGroupsProvider items = context.watch<ItemGroupsProvider>();
+    ThemeData theme = Theme.of(context);
     List<Rule> rs = items.rules
         .where((rule) =>
             rule.name!
@@ -38,27 +39,42 @@ class _RulesHomeState extends State<RulesHome> {
         .toList();
     AppLocalizations loc = AppLocalizations.of(context)!;
     SafeArea body = SafeArea(
-        child: Column(
-      children: [
-        SearchWidget(controller: _searchController),
-        Expanded(
-          child: ListView.builder(
-              itemCount: rs.length,
-              itemBuilder: (BuildContext context, int index) {
-                Rule rule = rs[index];
-                RuleWidget r = RuleWidget(
-                  name: rule.name ?? loc.noName,
-                  state: rule.state ?? false,
-                  stateCallback: (st) => switchState(
-                      st, rule.uuid, items.auth, items.apiToken, context, rule),
-                  runCallback: () =>
-                      execute(rule.uuid, items.auth, items.apiToken, context),
-                );
-                return r;
-              }),
-        ),
-      ],
-    ));
+        child: items.rules.length == 0
+            ? Card(
+                elevation: 2,
+                margin:
+                    const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 5),
+                child: Center(
+                    child: Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Text(
+                    loc.performRefresh,
+                    style: theme.textTheme.subtitle1,
+                  ),
+                )),
+              )
+            : Column(
+                children: [
+                  SearchWidget(controller: _searchController),
+                  Expanded(
+                    child: ListView.builder(
+                        itemCount: rs.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          Rule rule = rs[index];
+                          RuleWidget r = RuleWidget(
+                            name: rule.name ?? loc.noName,
+                            state: rule.state ?? false,
+                            description: rule.description,
+                            stateCallback: (st) => switchState(st, rule.uuid,
+                                items.auth, items.apiToken, context, rule),
+                            runCallback: () => execute(
+                                rule.uuid, items.auth, items.apiToken, context),
+                          );
+                          return r;
+                        }),
+                  ),
+                ],
+              ));
 
     return body;
   }

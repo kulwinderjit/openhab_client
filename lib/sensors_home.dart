@@ -27,6 +27,7 @@ class _SensorsHomeState extends State<SensorsHome> {
   Widget build(BuildContext context) {
     ItemGroupsProvider items = context.watch<ItemGroupsProvider>();
     AppLocalizations loc = AppLocalizations.of(context)!;
+    ThemeData theme = Theme.of(context);
     SplayTreeMap<String, List<EnrichedItemDTO>> sensorGroups =
         items.sensorGroups;
     List<MapEntry<String, List<EnrichedItemDTO>>> filterMap =
@@ -45,68 +46,86 @@ class _SensorsHomeState extends State<SensorsHome> {
             .where((element) => element.value.length > 0)
             .toList();
     SafeArea body = SafeArea(
-      child: Column(
-        children: [
-          SearchWidget(controller: _searchController),
-          Expanded(
-            child: ListView.builder(
-              itemCount: filterMap.length,
-              itemBuilder: (conext, idx) {
-                MapEntry<String, List<EnrichedItemDTO>> entry = filterMap[idx];
-                String groupName = entry.key;
-                List<EnrichedItemDTO> sensors = entry.value;
-                List<TableRow> rows = [];
-                for (EnrichedItemDTO s in sensors) {
-                  rows.add(TableRow(children: [
-                    SelectableText(s.label.isEmpty ? s.name : s.label,
-                        textScaleFactor: 1.1),
-                    SelectableText(s.state.isEmpty ? loc.noValue : s.state,
-                        textScaleFactor: 1.1),
-                  ]));
-                }
-                return Card(
-                  elevation: 5,
-                  margin: const EdgeInsets.all(10),
-                  child: Column(
-                    children: [
-                      Card(
+      child: items.sensorGroups.length == 0
+          ? Card(
+              elevation: 2,
+              margin:
+                  const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 5),
+              child: Center(
+                  child: Padding(
+                padding: EdgeInsets.all(8),
+                child: Text(
+                  loc.performRefresh,
+                  style: theme.textTheme.subtitle1,
+                ),
+              )),
+            )
+          : Column(
+              children: [
+                SearchWidget(controller: _searchController),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: filterMap.length,
+                    itemBuilder: (conext, idx) {
+                      MapEntry<String, List<EnrichedItemDTO>> entry =
+                          filterMap[idx];
+                      String groupName = entry.key;
+                      List<EnrichedItemDTO> sensors = entry.value;
+                      List<TableRow> rows = [];
+                      for (EnrichedItemDTO s in sensors) {
+                        rows.add(TableRow(children: [
+                          SelectableText(
+                            s.label.isEmpty ? s.name : s.label,
+                            style: theme.textTheme.subtitle2,
+                          ),
+                          SelectableText(
+                            s.state.isEmpty ? loc.noValue : s.state,
+                            style: theme.textTheme.subtitle2,
+                          ),
+                        ]));
+                      }
+                      return Card(
                         elevation: 2,
-                        color: Theme.of(context).primaryColor.withAlpha(150),
-                        child: ListTile(
-                          title: Text(
-                            groupName,
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          leading: const Icon(
-                            Icons.roofing_rounded,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      Wrap(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Table(
-                              children: rows,
+                        margin: const EdgeInsets.only(
+                            left: 8, right: 8, top: 5, bottom: 5),
+                        child: Column(
+                          children: [
+                            Card(
+                              elevation: 4,
+                              child: ListTile(
+                                title: Text(groupName),
+                                horizontalTitleGap: 0,
+                                leading: Icon(
+                                  Icons.sensors,
+                                  color: theme.iconTheme.color,
+                                ),
+                              ),
                             ),
-                          )
-                        ],
-                        alignment: WrapAlignment.start,
-                        crossAxisAlignment: WrapCrossAlignment.end,
-                        direction: Axis.horizontal,
-                        verticalDirection: VerticalDirection.down,
-                        spacing: 15,
-                        runSpacing: 15,
-                      ),
-                    ],
+                            Wrap(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 30, right: 8, top: 8, bottom: 8),
+                                  child: Table(
+                                    children: rows,
+                                  ),
+                                )
+                              ],
+                              alignment: WrapAlignment.start,
+                              crossAxisAlignment: WrapCrossAlignment.end,
+                              direction: Axis.horizontal,
+                              verticalDirection: VerticalDirection.down,
+                              spacing: 15,
+                              runSpacing: 15,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
     return body;
   }

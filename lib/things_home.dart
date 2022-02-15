@@ -30,6 +30,7 @@ class _ThingsHomeState extends State<ThingsHome> {
   @override
   Widget build(BuildContext context) {
     ItemGroupsProvider items = context.watch<ItemGroupsProvider>();
+    ThemeData theme = Theme.of(context);
     List<Thing> rs = items.things
         .where((rule) =>
             rule.name!
@@ -39,25 +40,39 @@ class _ThingsHomeState extends State<ThingsHome> {
         .toList();
     AppLocalizations loc = AppLocalizations.of(context)!;
     SafeArea body = SafeArea(
-        child: Column(
-      children: [
-        SearchWidget(controller: _searchController),
-        Expanded(
-          child: ListView.builder(
-              itemCount: rs.length,
-              itemBuilder: (BuildContext context, int index) {
-                Thing thing = rs[index];
-                ThingWidget r = ThingWidget(
-                  name: thing.name ?? loc.noName,
-                  state: thing.state ?? false,
-                  stateCallback: (st) => switchState(st, thing.uuid, items.auth,
-                      items.apiToken, context, thing),
-                );
-                return r;
-              }),
-        ),
-      ],
-    ));
+        child: items.things.length == 0
+            ? Card(
+                elevation: 2,
+                margin:
+                    const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 5),
+                child: Center(
+                    child: Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Text(
+                    loc.performRefresh,
+                    style: theme.textTheme.subtitle1,
+                  ),
+                )),
+              )
+            : Column(
+                children: [
+                  SearchWidget(controller: _searchController),
+                  Expanded(
+                    child: ListView.builder(
+                        itemCount: rs.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          Thing thing = rs[index];
+                          ThingWidget r = ThingWidget(
+                            name: thing.name ?? loc.noName,
+                            state: thing.state ?? false,
+                            stateCallback: (st) => switchState(st, thing.uuid,
+                                items.auth, items.apiToken, context, thing),
+                          );
+                          return r;
+                        }),
+                  ),
+                ],
+              ));
 
     return body;
   }

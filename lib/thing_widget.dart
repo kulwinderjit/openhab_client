@@ -47,24 +47,31 @@ class ThingWidgetState extends State<ThingWidget> {
   @override
   Widget build(BuildContext context) {
     AppLocalizations? loc = AppLocalizations.of(context);
+    ThemeData theme = Theme.of(context);
     return Card(
+      elevation: 2,
+      margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 5),
       child: Column(children: [
         Card(
-            child: ListTile(
-                title: Text(
-              widget._name,
-              style: const TextStyle(color: Colors.white),
-            )),
-            color: Theme.of(context).primaryColor),
+          elevation: 4,
+          child: ListTile(
+              leading: Icon(
+                Icons.emoji_objects,
+                color: theme.iconTheme.color,
+              ),
+              horizontalTitleGap: 0,
+              title: Text(
+                widget._name,
+              )),
+        ),
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.only(left: 30, right: 8, top: 8, bottom: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
                 widget._state ? loc!.enabled : loc!.disabled,
-                style:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
+                style: theme.textTheme.bodyText2,
               ),
               Switch(
                 onChanged: toggleState,

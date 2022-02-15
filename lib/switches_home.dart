@@ -30,6 +30,8 @@ class _SwitchesHomeState extends State<SwitchesHome> {
   @override
   Widget build(BuildContext context) {
     ItemGroupsProvider items = context.watch<ItemGroupsProvider>();
+    AppLocalizations loc = AppLocalizations.of(context)!;
+    ThemeData theme = Theme.of(context);
     SplayTreeMap<String, List<EnrichedItemDTO>> switchGroups =
         items.switchGroups;
     List<MapEntry<String, List<EnrichedItemDTO>>> filterMap =
@@ -48,61 +50,77 @@ class _SwitchesHomeState extends State<SwitchesHome> {
             .where((element) => element.value.length > 0)
             .toList();
     Widget body = SafeArea(
-        child: Column(
-      children: [
-        SearchWidget(controller: _searchController),
-        Expanded(
-          child: ListView.builder(
-            itemCount: filterMap.length,
-            itemBuilder: (context, idx) {
-              MapEntry<String, List<EnrichedItemDTO>> entry = filterMap[idx];
-              String groupName = entry.key;
-              List<EnrichedItemDTO> switches = entry.value;
-              List<Widget> buttons = [];
-              for (EnrichedItemDTO s in switches) {
-                buttons.add(SwitchWidget(
-                    name: s.label.isEmpty ? s.name : s.label,
-                    state: (s.state) == Utils.onN,
-                    callback: (st) {
-                      return switchState(st, s.link, items.auth, context, s);
-                    }));
-              }
-              return Card(
-                elevation: 5,
-                margin: const EdgeInsets.all(10),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Card(
-                      elevation: 2,
-                      color: Theme.of(context).primaryColor.withAlpha(150),
-                      child: ListTile(
-                        title: Text(groupName),
-                        textColor: Colors.white,
-                        leading: const Icon(
-                          Icons.roofing_rounded,
-                          color: Colors.white,
-                        ),
-                      ),
+        child: items.switchGroups.length == 0
+            ? Card(
+                elevation: 2,
+                margin:
+                    const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 5),
+                child: Center(
+                    child: Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Text(
+                    loc.performRefresh,
+                    style: theme.textTheme.subtitle1,
+                  ),
+                )),
+              )
+            : Column(
+                children: [
+                  SearchWidget(controller: _searchController),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: filterMap.length,
+                      itemBuilder: (context, idx) {
+                        MapEntry<String, List<EnrichedItemDTO>> entry =
+                            filterMap[idx];
+                        String groupName = entry.key;
+                        List<EnrichedItemDTO> switches = entry.value;
+                        List<Widget> buttons = [];
+                        for (EnrichedItemDTO s in switches) {
+                          buttons.add(SwitchWidget(
+                              name: s.label.isEmpty ? s.name : s.label,
+                              state: (s.state) == Utils.onN,
+                              callback: (st) {
+                                return switchState(
+                                    st, s.link, items.auth, context, s);
+                              }));
+                        }
+                        return Card(
+                          elevation: 2,
+                          margin: const EdgeInsets.only(
+                              left: 8, right: 8, top: 5, bottom: 5),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Card(
+                                elevation: 4,
+                                child: ListTile(
+                                  title: Text(groupName),
+                                  horizontalTitleGap: 0,
+                                  leading: Icon(
+                                    Icons.toggle_on,
+                                    color: theme.iconTheme.color,
+                                  ),
+                                ),
+                              ),
+                              Wrap(
+                                children: [...buttons],
+                                alignment: WrapAlignment.start,
+                                crossAxisAlignment: WrapCrossAlignment.end,
+                                direction: Axis.horizontal,
+                                verticalDirection: VerticalDirection.down,
+                                spacing: 15,
+                                runSpacing: 15,
+                              ),
+                              const Padding(padding: EdgeInsets.all(10)),
+                            ],
+                          ),
+                        );
+                      },
                     ),
-                    Wrap(
-                      children: [...buttons],
-                      alignment: WrapAlignment.start,
-                      crossAxisAlignment: WrapCrossAlignment.end,
-                      direction: Axis.horizontal,
-                      verticalDirection: VerticalDirection.down,
-                      spacing: 15,
-                      runSpacing: 15,
-                    ),
-                    const Padding(padding: EdgeInsets.all(10)),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    ));
+                  ),
+                ],
+              ));
     return body;
   }
 
