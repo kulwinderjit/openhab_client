@@ -1,4 +1,4 @@
-package com.example.openhab_client
+package com.sandhu.openhabcontroller
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -2,10 +2,10 @@ import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:openhab_client/models/EnrichedItemDTO.dart';
+import 'package:openhab_client/models/item.dart';
 import 'package:openhab_client/models/rule.dart';
 import 'package:openhab_client/models/thing.dart';
-import 'package:openhab_client/utils.dart';
+import 'package:openhab_client/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as conv;
@@ -14,23 +14,20 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class ItemGroupsProvider extends ChangeNotifier {
   String? auth;
   String? apiToken;
-  final SplayTreeMap<String, List<EnrichedItemDTO>> _switchesGroups =
-      SplayTreeMap();
-  final SplayTreeMap<String, List<EnrichedItemDTO>> _sensorGroups =
-      SplayTreeMap();
+  final SplayTreeMap<String, List<Item>> _switchesGroups = SplayTreeMap();
+  final SplayTreeMap<String, List<Item>> _sensorGroups = SplayTreeMap();
   final Map<String, String> _sysInfo = {};
   final List<Rule> _rules = [];
   final List<Thing> _things = [];
-  SplayTreeMap<String, List<EnrichedItemDTO>> get sensorGroups => _sensorGroups;
-  SplayTreeMap<String, List<EnrichedItemDTO>> get switchGroups =>
-      _switchesGroups;
+  SplayTreeMap<String, List<Item>> get sensorGroups => _sensorGroups;
+  SplayTreeMap<String, List<Item>> get switchGroups => _switchesGroups;
   UnmodifiableMapView<String, String> get sysInfo =>
       UnmodifiableMapView(_sysInfo);
   UnmodifiableListView<Rule> get rules => UnmodifiableListView(_rules);
   UnmodifiableListView<Thing> get things => UnmodifiableListView(_things);
 
-  addSwitches(List<EnrichedItemDTO> switchList) {
-    for (EnrichedItemDTO item in switchList) {
+  addSwitches(List<Item> switchList) {
+    for (Item item in switchList) {
       String? group = item.groupName.isNotEmpty ? item.groupName : 'All';
       if (_switchesGroups.containsKey(group)) {
         _switchesGroups[group]!.add(item);
@@ -64,9 +61,9 @@ class ItemGroupsProvider extends ChangeNotifier {
   Future<bool> refresh(BuildContext context) async {
     AppLocalizations loc = AppLocalizations.of(context)!;
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? userName = prefs.get('username')?.toString();
-    String? password = prefs.get('password')?.toString();
-    String? _apitoken = prefs.get('apitoken')?.toString();
+    String? userName = prefs.get(Utils.username)?.toString();
+    String? password = prefs.get(Utils.password)?.toString();
+    String? _apitoken = prefs.get(Utils.apitoken)?.toString();
     if (userName != null && password != null) {
       String basicAuth =
           'Basic ' + conv.base64Encode(conv.utf8.encode('$userName:$password'));
@@ -149,9 +146,9 @@ class ItemGroupsProvider extends ChangeNotifier {
   }
 
   void _parseItems(String response, SharedPreferences prefs) {
-    final List<EnrichedItemDTO> _switches = [];
-    final List<EnrichedItemDTO> sensors = [];
-    List<EnrichedItemDTO> items = (conv.jsonDecode(response) as List).map((e) {
+    final List<Item> _switches = [];
+    final List<Item> sensors = [];
+    List<Item> items = (conv.jsonDecode(response) as List).map((e) {
       String label = e['label'] ?? '';
       String name = e['name'] ?? '';
       String type = e['type'] ?? '';
@@ -159,7 +156,7 @@ class ItemGroupsProvider extends ChangeNotifier {
       String link = e['link'] ?? '';
       List groups = (e['groupNames'] as List);
       String group = groups.length > 0 ? groups[0] : '';
-      return EnrichedItemDTO(
+      return Item(
           label: label,
           link: link,
           name: name,
@@ -167,7 +164,7 @@ class ItemGroupsProvider extends ChangeNotifier {
           type: type,
           groupName: group);
     }).toList();
-    for (EnrichedItemDTO item in items) {
+    for (Item item in items) {
       if (item.type == 'Switch') {
         if (!_switches.any((element) => element.link == item.link)) {
           _switches.add(item);
@@ -181,7 +178,7 @@ class ItemGroupsProvider extends ChangeNotifier {
     prefs.setString(
         'switches', conv.jsonEncode(_switches.map((e) => e.toJson()).toList()));
     _switchesGroups.clear();
-    for (EnrichedItemDTO item in _switches) {
+    for (Item item in _switches) {
       String? group = item.groupName.isNotEmpty ? item.groupName : 'All';
       if (_switchesGroups.containsKey(group)) {
         _switchesGroups[group]!.add(item);
@@ -191,7 +188,7 @@ class ItemGroupsProvider extends ChangeNotifier {
       }
     }
     _sensorGroups.clear();
-    for (EnrichedItemDTO item in sensors) {
+    for (Item item in sensors) {
       String? group = item.groupName.isNotEmpty ? item.groupName : 'All';
       if (_sensorGroups.containsKey(group)) {
         _sensorGroups[group]!.add(item);

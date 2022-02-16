@@ -1,5 +1,5 @@
-class EnrichedItemDTO {
-  EnrichedItemDTO({
+class Item {
+  Item({
     required this.type,
     required this.name,
     required this.label,
@@ -14,7 +14,7 @@ class EnrichedItemDTO {
   late final String link;
   String state;
 
-  EnrichedItemDTO.fromJson(Map<String, dynamic> json)
+  Item.fromJson(Map<String, dynamic> json)
       : type = json['type'],
         name = json['name'],
         label = json['label'],

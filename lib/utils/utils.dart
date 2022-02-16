@@ -24,6 +24,18 @@ class Utils {
 
   static const String onN = "ON";
   static const String off = "OFF";
+  static const String themeMode = "themeMode";
+  static const String colorScheme = "colorScheme";
+
+  static const String username = "username";
+  static const String password = "password";
+  static const String apitoken = "apitoken";
+
+  static const String displayName = "displayName";
+  static const String switches = "switches";
+  static const String rules = "rules";
+  static const String things = "things";
+  static const String isDemo = "isDemo";
 
   static makeToast(BuildContext context, String message) {
     Color backColor;

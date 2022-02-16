@@ -2,21 +2,21 @@ import 'dart:convert';
 
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
-import 'package:openhab_client/about_home.dart';
-import 'package:openhab_client/models/EnrichedItemDTO.dart';
+import 'package:openhab_client/pages/about_home.dart';
+import 'package:openhab_client/models/item.dart';
 import 'package:openhab_client/models/ItemGroupsProvider.dart';
 import 'package:openhab_client/models/rule.dart';
 import 'package:openhab_client/models/thing.dart';
-import 'package:openhab_client/refresh_icon.dart';
-import 'package:openhab_client/rules_home.dart';
-import 'package:openhab_client/sensors_home.dart';
-import 'package:openhab_client/settings_home.dart';
-import 'package:openhab_client/sidebar.dart';
+import 'package:openhab_client/widgets/refresh_icon.dart';
+import 'package:openhab_client/pages/rules_home.dart';
+import 'package:openhab_client/pages/sensors_home.dart';
+import 'package:openhab_client/pages/settings_home.dart';
+import 'package:openhab_client/pages/sidebar.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:openhab_client/switches_home.dart';
-import 'package:openhab_client/system_info.dart';
-import 'package:openhab_client/things_home.dart';
-import 'package:openhab_client/utils.dart';
+import 'package:openhab_client/pages/switches_home.dart';
+import 'package:openhab_client/pages/system_info_home.dart';
+import 'package:openhab_client/pages/things_home.dart';
+import 'package:openhab_client/utils/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -49,19 +49,19 @@ class PageWrapperState extends State<PageWrapper> {
   void initState() {
     super.initState();
     SharedPreferences.getInstance().then((prefs) {
-      displayName = prefs.get('displayName')?.toString();
-      userName = prefs.get('username')?.toString();
-      String? password = prefs.get('password')?.toString();
-      String? apiToken = prefs.get('apitoken')?.toString();
-      String? switches = prefs.get('switches')?.toString();
-      String? rules = prefs.get('rules')?.toString();
-      String? things = prefs.get('things')?.toString();
-      isDemo = prefs.getBool('isDemo') ?? false;
+      displayName = prefs.get(Utils.displayName)?.toString();
+      userName = prefs.get(Utils.username)?.toString();
+      String? password = prefs.get(Utils.password)?.toString();
+      String? apiToken = prefs.get(Utils.apitoken)?.toString();
+      String? switches = prefs.get(Utils.switches)?.toString();
+      String? rules = prefs.get(Utils.rules)?.toString();
+      String? things = prefs.get(Utils.things)?.toString();
+      isDemo = prefs.getBool(Utils.isDemo) ?? false;
       ItemGroupsProvider items =
           Provider.of<ItemGroupsProvider>(context, listen: false);
       if (switches != null) {
-        List<EnrichedItemDTO> switchList = (jsonDecode(switches) as List)
-            .map((e) => EnrichedItemDTO.fromJson(e))
+        List<Item> switchList = (jsonDecode(switches) as List)
+            .map((e) => Item.fromJson(e))
             .toList();
         Future.delayed(Duration.zero, () {
           items.addSwitches(switchList);
@@ -96,7 +96,7 @@ class PageWrapperState extends State<PageWrapper> {
 
   void _dataRefresh() {
     SharedPreferences.getInstance().then((prefs) {
-      prefs.setBool('isDemo', false);
+      prefs.setBool(Utils.isDemo, false);
       setState(() {
         isDemo = false;
       });
@@ -109,7 +109,7 @@ class PageWrapperState extends State<PageWrapper> {
     items.dummyData(context).then((value) {
       Utils.makeToast(context, loc.genDemoDataDone);
       SharedPreferences.getInstance().then((prefs) {
-        prefs.setBool('isDemo', true);
+        prefs.setBool(Utils.isDemo, true);
         setState(() {
           isDemo = true;
         });
@@ -119,8 +119,8 @@ class PageWrapperState extends State<PageWrapper> {
 
   void _settingsVerified() {
     SharedPreferences.getInstance().then((prefs) {
-      displayName = prefs.get('displayName')?.toString();
-      userName = prefs.get('username')?.toString();
+      displayName = prefs.get(Utils.displayName)?.toString();
+      userName = prefs.get(Utils.username)?.toString();
       setState(() {
         if (userName == null || userName!.isEmpty) {
           navIndex = 6;

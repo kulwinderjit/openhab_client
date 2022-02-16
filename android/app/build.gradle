@@ -43,7 +43,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.example.openhab_client"
+        applicationId "com.sandhu.openhabcontroller"
         minSdkVersion 16
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()

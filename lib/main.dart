@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:openhab_client/models/ItemGroupsProvider.dart';
-import 'package:openhab_client/page_wrapper.dart';
+import 'package:openhab_client/pages/page_wrapper.dart';
+import 'package:openhab_client/utils/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,8 +13,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? colorSchemeStr = prefs.getString('colorScheme');
-  int? themeModeInt = prefs.getInt('themeMode');
+  String? colorSchemeStr = prefs.getString(Utils.colorScheme);
+  int? themeModeInt = prefs.getInt(Utils.themeMode);
   ThemeMode themeMode;
   FlexScheme colorScheme;
   if (themeModeInt != null) {

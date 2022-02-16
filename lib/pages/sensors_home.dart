@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:openhab_client/models/EnrichedItemDTO.dart';
+import 'package:openhab_client/models/item.dart';
 import 'package:openhab_client/models/ItemGroupsProvider.dart';
-import 'package:openhab_client/search_widget.dart';
+import 'package:openhab_client/widgets/search_widget.dart';
 import 'package:provider/src/provider.dart';
 import "dart:collection";
 
@@ -28,23 +28,21 @@ class _SensorsHomeState extends State<SensorsHome> {
     ItemGroupsProvider items = context.watch<ItemGroupsProvider>();
     AppLocalizations loc = AppLocalizations.of(context)!;
     ThemeData theme = Theme.of(context);
-    SplayTreeMap<String, List<EnrichedItemDTO>> sensorGroups =
-        items.sensorGroups;
-    List<MapEntry<String, List<EnrichedItemDTO>>> filterMap =
-        sensorGroups.entries
-            .map((e) {
-              List<EnrichedItemDTO> l = e.value
-                  .where((element) =>
-                      (element.label.isEmpty ? element.name : element.label)
-                          .toLowerCase()
-                          .contains(_searchController.text.toLowerCase()) ||
-                      _searchController.text.isEmpty)
-                  .toList();
-              MapEntry<String, List<EnrichedItemDTO>> m = MapEntry(e.key, l);
-              return m;
-            })
-            .where((element) => element.value.length > 0)
-            .toList();
+    SplayTreeMap<String, List<Item>> sensorGroups = items.sensorGroups;
+    List<MapEntry<String, List<Item>>> filterMap = sensorGroups.entries
+        .map((e) {
+          List<Item> l = e.value
+              .where((element) =>
+                  (element.label.isEmpty ? element.name : element.label)
+                      .toLowerCase()
+                      .contains(_searchController.text.toLowerCase()) ||
+                  _searchController.text.isEmpty)
+              .toList();
+          MapEntry<String, List<Item>> m = MapEntry(e.key, l);
+          return m;
+        })
+        .where((element) => element.value.length > 0)
+        .toList();
     SafeArea body = SafeArea(
       child: items.sensorGroups.length == 0
           ? Card(
@@ -67,12 +65,11 @@ class _SensorsHomeState extends State<SensorsHome> {
                   child: ListView.builder(
                     itemCount: filterMap.length,
                     itemBuilder: (conext, idx) {
-                      MapEntry<String, List<EnrichedItemDTO>> entry =
-                          filterMap[idx];
+                      MapEntry<String, List<Item>> entry = filterMap[idx];
                       String groupName = entry.key;
-                      List<EnrichedItemDTO> sensors = entry.value;
+                      List<Item> sensors = entry.value;
                       List<TableRow> rows = [];
-                      for (EnrichedItemDTO s in sensors) {
+                      for (Item s in sensors) {
                         rows.add(TableRow(children: [
                           SelectableText(
                             s.label.isEmpty ? s.name : s.label,

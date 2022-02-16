@@ -1,12 +1,12 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:openhab_client/models/EnrichedItemDTO.dart';
+import 'package:openhab_client/models/item.dart';
 import 'package:openhab_client/models/ItemGroupsProvider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:openhab_client/search_widget.dart';
-import 'package:openhab_client/switch_widget.dart';
-import 'package:openhab_client/utils.dart';
+import 'package:openhab_client/widgets/search_widget.dart';
+import 'package:openhab_client/widgets/switch_widget.dart';
+import 'package:openhab_client/utils/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -32,23 +32,21 @@ class _SwitchesHomeState extends State<SwitchesHome> {
     ItemGroupsProvider items = context.watch<ItemGroupsProvider>();
     AppLocalizations loc = AppLocalizations.of(context)!;
     ThemeData theme = Theme.of(context);
-    SplayTreeMap<String, List<EnrichedItemDTO>> switchGroups =
-        items.switchGroups;
-    List<MapEntry<String, List<EnrichedItemDTO>>> filterMap =
-        switchGroups.entries
-            .map((e) {
-              List<EnrichedItemDTO> l = e.value
-                  .where((element) =>
-                      (element.label.isEmpty ? element.name : element.label)
-                          .toLowerCase()
-                          .contains(_searchController.text.toLowerCase()) ||
-                      _searchController.text.isEmpty)
-                  .toList();
-              MapEntry<String, List<EnrichedItemDTO>> m = MapEntry(e.key, l);
-              return m;
-            })
-            .where((element) => element.value.length > 0)
-            .toList();
+    SplayTreeMap<String, List<Item>> switchGroups = items.switchGroups;
+    List<MapEntry<String, List<Item>>> filterMap = switchGroups.entries
+        .map((e) {
+          List<Item> l = e.value
+              .where((element) =>
+                  (element.label.isEmpty ? element.name : element.label)
+                      .toLowerCase()
+                      .contains(_searchController.text.toLowerCase()) ||
+                  _searchController.text.isEmpty)
+              .toList();
+          MapEntry<String, List<Item>> m = MapEntry(e.key, l);
+          return m;
+        })
+        .where((element) => element.value.length > 0)
+        .toList();
     Widget body = SafeArea(
         child: items.switchGroups.length == 0
             ? Card(
@@ -71,12 +69,11 @@ class _SwitchesHomeState extends State<SwitchesHome> {
                     child: ListView.builder(
                       itemCount: filterMap.length,
                       itemBuilder: (context, idx) {
-                        MapEntry<String, List<EnrichedItemDTO>> entry =
-                            filterMap[idx];
+                        MapEntry<String, List<Item>> entry = filterMap[idx];
                         String groupName = entry.key;
-                        List<EnrichedItemDTO> switches = entry.value;
+                        List<Item> switches = entry.value;
                         List<Widget> buttons = [];
-                        for (EnrichedItemDTO s in switches) {
+                        for (Item s in switches) {
                           buttons.add(SwitchWidget(
                               name: s.label.isEmpty ? s.name : s.label,
                               state: (s.state) == Utils.onN,
@@ -125,7 +122,7 @@ class _SwitchesHomeState extends State<SwitchesHome> {
   }
 
   Future<bool> switchState(bool state, String? url, String? auth,
-      BuildContext context, EnrichedItemDTO item) async {
+      BuildContext context, Item item) async {
     AppLocalizations loc = AppLocalizations.of(context)!;
     if (url == null || auth == null) {
       Utils.makeToast(context, loc.noCredentialsMsg);
