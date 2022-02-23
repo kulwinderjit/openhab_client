@@ -7,6 +7,7 @@ import 'package:openhab_client/widgets/search_widget.dart';
 import 'package:openhab_client/utils/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RulesHome extends StatefulWidget {
   const RulesHome({Key? key}) : super(key: key);
@@ -65,8 +66,15 @@ class _RulesHomeState extends State<RulesHome> {
                             name: rule.name ?? loc.noName,
                             state: rule.state ?? false,
                             description: rule.description,
-                            stateCallback: (st) => switchState(st, rule.uuid,
-                                items.auth, items.apiToken, context, rule),
+                            stateCallback: (st) => switchState(
+                              st,
+                              rule.uuid,
+                              items.auth,
+                              items.apiToken,
+                              context,
+                              rule,
+                              items,
+                            ),
                             runCallback: () => execute(
                                 rule.uuid, items.auth, items.apiToken, context),
                           );
@@ -112,8 +120,14 @@ class _RulesHomeState extends State<RulesHome> {
     return _state;
   }
 
-  Future<bool> switchState(bool state, String? uuid, String? auth,
-      String? apiToken, BuildContext context, Rule item) async {
+  Future<bool> switchState(
+      bool state,
+      String? uuid,
+      String? auth,
+      String? apiToken,
+      BuildContext context,
+      Rule item,
+      ItemGroupsProvider provider) async {
     AppLocalizations loc = AppLocalizations.of(context)!;
     var url = Uri.parse(Utils.enableRuleUrl.replaceAll('{uuid}', uuid!));
     if (auth == null || apiToken == null) {
@@ -139,6 +153,7 @@ class _RulesHomeState extends State<RulesHome> {
       Utils.makeToast(context, loc.errorOccurred);
     }
     item.state = _state;
+    SharedPreferences.getInstance().then((value) => provider.saveRules(value));
     return _state;
   }
 }

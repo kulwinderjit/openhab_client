@@ -9,6 +9,7 @@ import 'package:openhab_client/widgets/switch_widget.dart';
 import 'package:openhab_client/utils/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SwitchesHome extends StatefulWidget {
   const SwitchesHome({Key? key}) : super(key: key);
@@ -79,7 +80,13 @@ class _SwitchesHomeState extends State<SwitchesHome> {
                               state: (s.state) == Utils.onN,
                               callback: (st) {
                                 return switchState(
-                                    st, s.link, items.auth, context, s);
+                                  st,
+                                  s.link,
+                                  items.auth,
+                                  context,
+                                  s,
+                                  items,
+                                );
                               }));
                         }
                         return Card(
@@ -122,7 +129,7 @@ class _SwitchesHomeState extends State<SwitchesHome> {
   }
 
   Future<bool> switchState(bool state, String? url, String? auth,
-      BuildContext context, Item item) async {
+      BuildContext context, Item item, ItemGroupsProvider provider) async {
     AppLocalizations loc = AppLocalizations.of(context)!;
     if (url == null || auth == null) {
       Utils.makeToast(context, loc.noCredentialsMsg);
@@ -151,6 +158,8 @@ class _SwitchesHomeState extends State<SwitchesHome> {
       ));
     }
     item.state = _state ? Utils.onN : Utils.off;
+    SharedPreferences.getInstance()
+        .then((value) => provider.saveSwitches(value));
     return _state;
   }
 }

@@ -7,6 +7,7 @@ import 'package:openhab_client/widgets/thing_widget.dart';
 import 'package:openhab_client/utils/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ThingsHome extends StatefulWidget {
   const ThingsHome({Key? key}) : super(key: key);
@@ -64,8 +65,14 @@ class _ThingsHomeState extends State<ThingsHome> {
                           ThingWidget r = ThingWidget(
                             name: thing.name ?? loc.noName,
                             state: thing.state ?? false,
-                            stateCallback: (st) => switchState(st, thing.uuid,
-                                items.auth, items.apiToken, context, thing),
+                            stateCallback: (st) => switchState(
+                                st,
+                                thing.uuid,
+                                items.auth,
+                                items.apiToken,
+                                context,
+                                thing,
+                                items),
                           );
                           return r;
                         }),
@@ -76,8 +83,14 @@ class _ThingsHomeState extends State<ThingsHome> {
     return body;
   }
 
-  Future<bool> switchState(bool state, String? uuid, String? auth,
-      String? apiToken, BuildContext context, Thing thing) async {
+  Future<bool> switchState(
+      bool state,
+      String? uuid,
+      String? auth,
+      String? apiToken,
+      BuildContext context,
+      Thing thing,
+      ItemGroupsProvider provider) async {
     AppLocalizations loc = AppLocalizations.of(context)!;
     var url = Uri.parse(Utils.enableThingUrl.replaceAll('{uuid}', uuid!));
     if (auth == null || apiToken == null) {
@@ -103,6 +116,7 @@ class _ThingsHomeState extends State<ThingsHome> {
       Utils.makeToast(context, loc.errorOccurred);
     }
     thing.state = _state;
+    SharedPreferences.getInstance().then((value) => provider.saveThings(value));
     return _state;
   }
 }

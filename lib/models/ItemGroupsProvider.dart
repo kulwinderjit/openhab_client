@@ -14,6 +14,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class ItemGroupsProvider extends ChangeNotifier {
   String? auth;
   String? apiToken;
+  final List<Item> _switches = [];
   final SplayTreeMap<String, List<Item>> _switchesGroups = SplayTreeMap();
   final SplayTreeMap<String, List<Item>> _sensorGroups = SplayTreeMap();
   final Map<String, String> _sysInfo = {};
@@ -27,6 +28,7 @@ class ItemGroupsProvider extends ChangeNotifier {
   UnmodifiableListView<Thing> get things => UnmodifiableListView(_things);
 
   addSwitches(List<Item> switchList) {
+    _switches.addAll(switchList);
     for (Item item in switchList) {
       String? group = item.groupName.isNotEmpty ? item.groupName : 'All';
       if (_switchesGroups.containsKey(group)) {
@@ -114,6 +116,10 @@ class ItemGroupsProvider extends ChangeNotifier {
       _things.add(t);
     }
     _things.sort((a, b) => a.name!.compareTo(b.name!));
+    saveThings(prefs);
+  }
+
+  void saveThings(SharedPreferences prefs) {
     prefs.setString(
         'things', conv.jsonEncode(_things.map((e) => e.toJson()).toList()));
   }
@@ -133,6 +139,10 @@ class ItemGroupsProvider extends ChangeNotifier {
       _rules.add(r);
     }
     _rules.sort((a, b) => a.name!.compareTo(b.name!));
+    saveRules(prefs);
+  }
+
+  void saveRules(SharedPreferences prefs) {
     prefs.setString(
         'rules', conv.jsonEncode(_rules.map((e) => e.toJson()).toList()));
   }
@@ -146,7 +156,6 @@ class ItemGroupsProvider extends ChangeNotifier {
   }
 
   void _parseItems(String response, SharedPreferences prefs) {
-    final List<Item> _switches = [];
     final List<Item> sensors = [];
     List<Item> items = (conv.jsonDecode(response) as List).map((e) {
       String label = e['label'] ?? '';
@@ -175,8 +184,7 @@ class ItemGroupsProvider extends ChangeNotifier {
         }
       }
     }
-    prefs.setString(
-        'switches', conv.jsonEncode(_switches.map((e) => e.toJson()).toList()));
+    saveSwitches(prefs);
     _switchesGroups.clear();
     for (Item item in _switches) {
       String? group = item.groupName.isNotEmpty ? item.groupName : 'All';
@@ -197,6 +205,11 @@ class ItemGroupsProvider extends ChangeNotifier {
         _sensorGroups[group]!.add(item);
       }
     }
+  }
+
+  void saveSwitches(SharedPreferences prefs) {
+    prefs.setString(
+        'switches', conv.jsonEncode(_switches.map((e) => e.toJson()).toList()));
   }
 
   void addRules(List<Rule> ruleList) {
