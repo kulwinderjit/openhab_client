@@ -146,164 +146,171 @@ class _SettingsHomeState extends State<SettingsHome> {
     ThemeData theme = Theme.of(context);
     Widget body = GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: ListView(children: [
-        Card(
-          elevation: 2,
-          margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 5),
-          child: Wrap(
-            spacing: 20,
-            runSpacing: 20,
-            children: <Widget>[
-              Card(
-                  elevation: 4,
-                  child: ListTile(
-                      leading: Icon(
-                        Icons.settings,
-                        color: theme.iconTheme.color,
+      child: Center(
+        child: FractionallySizedBox(
+          widthFactor: 1,
+          child: ListView(children: [
+            Card(
+              elevation: 2,
+              margin:
+                  const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 5),
+              child: Wrap(
+                spacing: 20,
+                runSpacing: 20,
+                children: <Widget>[
+                  Card(
+                      elevation: 4,
+                      child: ListTile(
+                          leading: Icon(
+                            Icons.settings,
+                            color: theme.iconTheme.color,
+                          ),
+                          horizontalTitleGap: 0,
+                          title: Text(loc.credentialsTitle,
+                              style: theme.textTheme.subtitle1))),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8, right: 8),
+                    child: TextField(
+                        controller: _displayNameController,
+                        autocorrect: false,
+                        enableSuggestions: false,
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.smart_display_outlined),
+                          labelText: loc.displayName,
+                        )),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8, right: 8),
+                    child: TextField(
+                        controller: _usernameController,
+                        autocorrect: false,
+                        enableSuggestions: false,
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.manage_accounts),
+                          labelText: loc.userName,
+                          errorText: userEmpty ? loc.userNameRequired : null,
+                        )),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8, right: 8),
+                    child: TextField(
+                      controller: _passwordController,
+                      autocorrect: false,
+                      enableSuggestions: false,
+                      obscureText: !_passwordVisible,
+                      obscuringCharacter: '*',
+                      decoration: InputDecoration(
+                        labelText: loc.passowrd,
+                        errorText: passEmpty ? loc.passwordRequired : null,
+                        prefixIcon: const Icon(Icons.password),
+                        suffixIcon: IconButton(
+                          icon: Icon(_passwordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off),
+                          onPressed: () {
+                            setState(() {
+                              _passwordVisible = !_passwordVisible;
+                            });
+                          },
+                        ),
                       ),
-                      horizontalTitleGap: 0,
-                      title: Text(loc.credentialsTitle,
-                          style: theme.textTheme.subtitle1))),
-              Padding(
-                padding: const EdgeInsets.only(left: 8, right: 8),
-                child: TextField(
-                    controller: _displayNameController,
-                    autocorrect: false,
-                    enableSuggestions: false,
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.smart_display_outlined),
-                      labelText: loc.displayName,
-                    )),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 8, right: 8),
-                child: TextField(
-                    controller: _usernameController,
-                    autocorrect: false,
-                    enableSuggestions: false,
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.manage_accounts),
-                      labelText: loc.userName,
-                      errorText: userEmpty ? loc.userNameRequired : null,
-                    )),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 8, right: 8),
-                child: TextField(
-                  controller: _passwordController,
-                  autocorrect: false,
-                  enableSuggestions: false,
-                  obscureText: !_passwordVisible,
-                  obscuringCharacter: '*',
-                  decoration: InputDecoration(
-                    labelText: loc.passowrd,
-                    errorText: passEmpty ? loc.passwordRequired : null,
-                    prefixIcon: const Icon(Icons.password),
-                    suffixIcon: IconButton(
-                      icon: Icon(_passwordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off),
-                      onPressed: () {
-                        setState(() {
-                          _passwordVisible = !_passwordVisible;
-                        });
-                      },
                     ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 8, right: 8),
-                child: TextField(
-                  controller: _apiTokenController,
-                  autocorrect: false,
-                  enableSuggestions: false,
-                  decoration: InputDecoration(
-                    labelText: loc.apiToken,
-                    errorText: tokenEmpty ? loc.apiTokenRequired : null,
-                    prefixIcon: const Icon(Icons.api),
-                    suffixIcon: IconButton(
-                      icon: Icon(Icons.content_paste),
-                      onPressed: () {
-                        Clipboard.getData('text/plain').then((value) {
-                          setState(() {
-                            if (value != null && value.text != null) {
-                              _apiTokenController.text = value.text!;
-                            }
-                          });
-                        });
-                      },
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8, right: 8),
+                    child: TextField(
+                      controller: _apiTokenController,
+                      autocorrect: false,
+                      enableSuggestions: false,
+                      decoration: InputDecoration(
+                        labelText: loc.apiToken,
+                        errorText: tokenEmpty ? loc.apiTokenRequired : null,
+                        prefixIcon: const Icon(Icons.api),
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.content_paste),
+                          onPressed: () {
+                            Clipboard.getData('text/plain').then((value) {
+                              setState(() {
+                                if (value != null && value.text != null) {
+                                  _apiTokenController.text = value.text!;
+                                }
+                              });
+                            });
+                          },
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              ButtonBar(
-                alignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      demoData(context, loc);
-                    },
-                    child: Padding(
-                        padding: const EdgeInsets.all(5),
-                        child: Wrap(spacing: 10, runSpacing: 10, children: [
-                          Text(
-                            loc.genDemoData,
-                            style: theme.primaryTextTheme.headline6,
-                          )
-                        ])),
+                  ButtonBar(
+                    alignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          demoData(context, loc);
+                        },
+                        child: Padding(
+                            padding: const EdgeInsets.all(5),
+                            child: Wrap(spacing: 10, runSpacing: 10, children: [
+                              Text(
+                                loc.genDemoData,
+                                style: theme.primaryTextTheme.headline6,
+                              )
+                            ])),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _save(context, loc);
+                        },
+                        child: Padding(
+                            padding: const EdgeInsets.all(5),
+                            child: Wrap(spacing: 10, runSpacing: 10, children: [
+                              Text(
+                                loc.save,
+                                style: theme.primaryTextTheme.headline6,
+                              )
+                            ])),
+                      )
+                    ],
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      _save(context, loc);
-                    },
-                    child: Padding(
-                        padding: const EdgeInsets.all(5),
-                        child: Wrap(spacing: 10, runSpacing: 10, children: [
-                          Text(
-                            loc.save,
-                            style: theme.primaryTextTheme.headline6,
-                          )
-                        ])),
-                  )
                 ],
               ),
-            ],
-          ),
-        ),
-        Card(
-          margin: const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 5),
-          elevation: 2,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(loc.colorScheme),
-                  trailing: ThemeChoser(
-                    onSelect: themeChange,
-                    currentSheme: widget._currentScheme,
+            ),
+            Card(
+              margin:
+                  const EdgeInsets.only(left: 8, right: 8, top: 5, bottom: 5),
+              elevation: 2,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(loc.colorScheme),
+                      trailing: ThemeChoser(
+                        onSelect: themeChange,
+                        currentSheme: widget._currentScheme,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(loc.themeMode),
-                  subtitle: Text('${loc.themeModeSub} '
-                      '${widget._themeMode.toString().dotTail}'),
-                  trailing: ThemeModeSwitch(
-                    themeMode: widget._themeMode,
-                    onChanged: themeModeChange,
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(loc.themeMode),
+                      subtitle: Text('${loc.themeModeSub} '
+                          '${widget._themeMode.toString().dotTail}'),
+                      trailing: ThemeModeSwitch(
+                        themeMode: widget._themeMode,
+                        onChanged: themeModeChange,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ]),
         ),
-      ]),
+      ),
     );
     return body;
   }

@@ -118,7 +118,7 @@ class RuleWidgetState extends State<RuleWidget> {
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget._description!),
+                    SizedBox(height: 35, child: Text(widget._description!)),
                     buttonRow,
                   ],
                 )

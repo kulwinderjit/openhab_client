@@ -67,7 +67,7 @@ class _SwitchesHomeState extends State<SwitchesHome> {
                 children: [
                   SearchWidget(controller: _searchController),
                   Expanded(
-                    child: ListView.builder(
+                    child: GridView.builder(
                       itemCount: filterMap.length,
                       itemBuilder: (context, idx) {
                         MapEntry<String, List<Item>> entry = filterMap[idx];
@@ -75,26 +75,28 @@ class _SwitchesHomeState extends State<SwitchesHome> {
                         List<Item> switches = entry.value;
                         List<Widget> buttons = [];
                         for (Item s in switches) {
-                          buttons.add(SwitchWidget(
-                              name: s.label.isEmpty ? s.name : s.label,
-                              state: (s.state) == Utils.onN,
-                              callback: (st) {
-                                return switchState(
-                                  st,
-                                  s.link,
-                                  items.auth,
-                                  context,
-                                  s,
-                                  items,
-                                );
-                              }));
+                          buttons.add(Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: SwitchWidget(
+                                name: s.label.isEmpty ? s.name : s.label,
+                                state: (s.state) == Utils.onN,
+                                callback: (st) {
+                                  return switchState(
+                                    st,
+                                    s.link,
+                                    items.auth,
+                                    context,
+                                    s,
+                                    items,
+                                  );
+                                }),
+                          ));
                         }
                         return Card(
                           elevation: 2,
                           margin: const EdgeInsets.only(
                               left: 8, right: 8, top: 5, bottom: 5),
                           child: Column(
-                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Card(
                                 elevation: 4,
@@ -107,20 +109,26 @@ class _SwitchesHomeState extends State<SwitchesHome> {
                                   ),
                                 ),
                               ),
-                              Wrap(
-                                children: [...buttons],
-                                alignment: WrapAlignment.start,
-                                crossAxisAlignment: WrapCrossAlignment.end,
-                                direction: Axis.horizontal,
-                                verticalDirection: VerticalDirection.down,
-                                spacing: 15,
-                                runSpacing: 15,
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: [
+                                      ...buttons,
+                                      Padding(
+                                          padding: EdgeInsets.only(right: 8))
+                                    ],
+                                  ),
+                                ),
                               ),
-                              const Padding(padding: EdgeInsets.all(10)),
+                              const Padding(padding: EdgeInsets.all(9)),
                             ],
                           ),
                         );
                       },
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: Utils.gridColumnCount(context),
+                          mainAxisExtent: 160),
                     ),
                   ),
                 ],

@@ -7,6 +7,7 @@ import 'package:openhab_client/models/item.dart';
 import 'package:openhab_client/models/ItemGroupsProvider.dart';
 import 'package:openhab_client/models/rule.dart';
 import 'package:openhab_client/models/thing.dart';
+import 'package:openhab_client/utils/layout.dart';
 import 'package:openhab_client/widgets/refresh_icon.dart';
 import 'package:openhab_client/pages/rules_home.dart';
 import 'package:openhab_client/pages/sensors_home.dart';
@@ -18,6 +19,7 @@ import 'package:openhab_client/pages/system_info_home.dart';
 import 'package:openhab_client/pages/things_home.dart';
 import 'package:openhab_client/utils/utils.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PageWrapper extends StatefulWidget {
@@ -162,57 +164,129 @@ class PageWrapperState extends State<PageWrapper> {
     if (isDemo && navIndex >= 1 && navIndex <= 5) {
       title = '${loc.demo} $title';
     }
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title!),
-        actions: showRefresh
-            ? [
-                RefreshIcon(
-                  callback: _dataRefresh,
-                )
-              ]
-            : null,
-      ),
-      body: Builder(
-        builder: (context) {
-          switch (navIndex) {
-            case 1:
-              return const SwitchesHome();
-            case 2:
-              return const SensorsHome();
-            case 3:
-              return const RulesHome();
-            case 4:
-              return const ThingsHome();
-            case 5:
-              return const SystemInfo();
-            case 6:
-              return SettingsHome(
-                demoCallback: () {
-                  _demoData(context, loc);
-                },
-                callback: _settingsVerified,
-                themeMode: widget.themeMode,
-                onThemeModeChanged: widget.onThemeModeChanged,
-                onThemeChanged: widget.onThemeChanged,
-                currentScheme: widget.currentScheme,
-              );
-            case 7:
-              return const AboutHome();
-            default:
-              return const SwitchesHome();
-          }
-        },
-      ),
-      drawer: SideBar(
-          selectedIndex: navIndex,
-          setIndex: (int index) {
-            setState(() {
-              navIndex = index;
-            });
-          },
-          displayName: displayName,
-          userName: userName),
-    );
+    return Builder(builder: (context) {
+      ResponsiveWrapperData responsiveData = ResponsiveWrapper.of(context);
+      double menuwidth = 250;
+      double contentWidth = responsiveData.screenWidth - menuwidth;
+      if (responsiveData.isLargerThan(Layout.MOBILE)) {
+        return Scaffold(
+          appBar: AppBar(
+            toolbarHeight: 40,
+            title: Text(title!),
+            actions: showRefresh
+                ? [
+                    RefreshIcon(
+                      callback: _dataRefresh,
+                    )
+                  ]
+                : null,
+          ),
+          body: Row(
+            children: [
+              SizedBox(
+                width: menuwidth,
+                child: SideBar(
+                  selectedIndex: navIndex,
+                  setIndex: (int index) {
+                    setState(() {
+                      navIndex = index;
+                    });
+                  },
+                  displayName: displayName,
+                  userName: userName,
+                ),
+              ),
+              SizedBox(
+                width: contentWidth,
+                child: Builder(
+                  builder: (context) {
+                    switch (navIndex) {
+                      case 1:
+                        return SwitchesHome();
+                      case 2:
+                        return const SensorsHome();
+                      case 3:
+                        return RulesHome();
+                      case 4:
+                        return ThingsHome();
+                      case 5:
+                        return SystemInfo();
+                      case 6:
+                        return SettingsHome(
+                          demoCallback: () {
+                            _demoData(context, loc);
+                          },
+                          callback: _settingsVerified,
+                          themeMode: widget.themeMode,
+                          onThemeModeChanged: widget.onThemeModeChanged,
+                          onThemeChanged: widget.onThemeChanged,
+                          currentScheme: widget.currentScheme,
+                        );
+                      case 7:
+                        return const AboutHome();
+                      default:
+                        return SwitchesHome();
+                    }
+                  },
+                ),
+              )
+            ],
+          ),
+        );
+      } else {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(title!),
+            actions: showRefresh
+                ? [
+                    RefreshIcon(
+                      callback: _dataRefresh,
+                    )
+                  ]
+                : null,
+          ),
+          body: Builder(
+            builder: (context) {
+              switch (navIndex) {
+                case 1:
+                  return SwitchesHome();
+                case 2:
+                  return const SensorsHome();
+                case 3:
+                  return const RulesHome();
+                case 4:
+                  return const ThingsHome();
+                case 5:
+                  return const SystemInfo();
+                case 6:
+                  return SettingsHome(
+                    demoCallback: () {
+                      _demoData(context, loc);
+                    },
+                    callback: _settingsVerified,
+                    themeMode: widget.themeMode,
+                    onThemeModeChanged: widget.onThemeModeChanged,
+                    onThemeChanged: widget.onThemeChanged,
+                    currentScheme: widget.currentScheme,
+                  );
+                case 7:
+                  return const AboutHome();
+                default:
+                  return SwitchesHome();
+              }
+            },
+          ),
+          drawer: SideBar(
+              selectedIndex: navIndex,
+              setIndex: (int index) {
+                setState(() {
+                  navIndex = index;
+                });
+              },
+              displayName: displayName,
+              userName: userName),
+        );
+      }
+    });
   }
 }

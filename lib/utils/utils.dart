@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:openhab_client/utils/layout.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 class Utils {
   static const String runRuleUrl =
@@ -48,5 +50,17 @@ class Utils {
       content: Text(message),
       backgroundColor: backColor,
     ));
+  }
+
+  static int gridColumnCount(BuildContext context) {
+    return ResponsiveValue(context, defaultValue: 1, valueWhen: [
+      Condition.equals(name: Layout.MOBILE, value: 1),
+      Condition.equals(name: Layout.TABLET, value: 1),
+      Condition.equals(name: Layout.TABLET2, value: 1),
+      Condition.equals(name: Layout.TABLET3, value: 2),
+      Condition.equals(name: Layout.TABLET4, value: 3),
+      Condition.equals(name: Layout.TABLET5, value: 4),
+      Condition.equals(name: Layout.TABLET6, value: 5)
+    ]).value!;
   }
 }

@@ -32,18 +32,15 @@ class RefreshIconState extends State<RefreshIcon> {
         Provider.of<ItemGroupsProvider>(context, listen: false);
     Widget retWidget;
     if (isRefreshing) {
-      retWidget = Padding(
-          padding: const EdgeInsets.only(right: 20, top: 10),
-          child: Wrap(
-            children: [
-              Container(
-                  margin: const EdgeInsets.only(top: 5, right: 3),
-                  height: 24,
-                  width: 24,
-                  child: CircularProgressIndicator(
-                      color: theme.appBarTheme.iconTheme!.color))
-            ],
-          ));
+      retWidget = Container(
+        padding: const EdgeInsets.only(right: 26),
+        width: 49,
+        height: 23,
+        child: FittedBox(
+            fit: BoxFit.contain,
+            child: CircularProgressIndicator(
+                strokeWidth: 5, color: theme.appBarTheme.iconTheme!.color)),
+      );
     } else {
       retWidget = IconButton(
         onPressed: () => perfromRefresh(it, context),

@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:openhab_client/models/ItemGroupsProvider.dart';
 import 'package:openhab_client/models/rule.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:openhab_client/utils/layout.dart';
 import 'package:openhab_client/widgets/rule_widget.dart';
 import 'package:openhab_client/widgets/search_widget.dart';
 import 'package:openhab_client/utils/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RulesHome extends StatefulWidget {
@@ -58,28 +60,33 @@ class _RulesHomeState extends State<RulesHome> {
                 children: [
                   SearchWidget(controller: _searchController),
                   Expanded(
-                    child: ListView.builder(
-                        itemCount: rs.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          Rule rule = rs[index];
-                          RuleWidget r = RuleWidget(
-                            name: rule.name ?? loc.noName,
-                            state: rule.state ?? false,
-                            description: rule.description,
-                            stateCallback: (st) => switchState(
-                              st,
-                              rule.uuid,
-                              items.auth,
-                              items.apiToken,
-                              context,
-                              rule,
-                              items,
-                            ),
-                            runCallback: () => execute(
-                                rule.uuid, items.auth, items.apiToken, context),
-                          );
-                          return r;
-                        }),
+                    child: GridView.builder(
+                      itemCount: rs.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        Rule rule = rs[index];
+                        RuleWidget r = RuleWidget(
+                          name: rule.name ?? loc.noName,
+                          state: rule.state ?? false,
+                          description: rule.description,
+                          stateCallback: (st) => switchState(
+                            st,
+                            rule.uuid,
+                            items.auth,
+                            items.apiToken,
+                            context,
+                            rule,
+                            items,
+                          ),
+                          runCallback: () => execute(
+                              rule.uuid, items.auth, items.apiToken, context),
+                        );
+                        return r;
+                      },
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        mainAxisExtent: 180,
+                        crossAxisCount: Utils.gridColumnCount(context),
+                      ),
+                    ),
                   ),
                 ],
               ));

@@ -2,23 +2,29 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:openhab_client/utils/layout.dart';
+import 'package:responsive_framework/responsive_wrapper.dart';
 
 class SideBar extends StatelessWidget {
-  SideBar(
-      {Key? key,
-      required this.selectedIndex,
-      required this.setIndex,
-      this.displayName,
-      this.userName})
-      : super(key: key);
+  SideBar({
+    Key? key,
+    required this.selectedIndex,
+    required this.setIndex,
+    this.displayName,
+    this.userName,
+  }) : super(key: key);
   final Function setIndex;
   final int selectedIndex;
   String? displayName;
   String? userName;
 
   _navItemClicked(BuildContext context, int index) async {
-    Navigator.of(context).pop();
-    Future.delayed(Duration(milliseconds: 400), () => setIndex(index));
+    if (ResponsiveWrapper.of(context).isSmallerThan(Layout.TABLET)) {
+      Navigator.of(context).pop();
+      Future.delayed(Duration(milliseconds: 400), () => setIndex(index));
+    } else {
+      setIndex(index);
+    }
   }
 
   _navItem(
@@ -57,10 +63,13 @@ class SideBar extends StatelessWidget {
     AppLocalizations loc = AppLocalizations.of(context)!;
     ThemeData theme = Theme.of(context);
     return Drawer(
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-            topRight: Radius.circular(20), bottomRight: Radius.circular(20)),
-      ),
+      shape: ResponsiveWrapper.of(context).isSmallerThan(TABLET)
+          ? const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(20),
+                  bottomRight: Radius.circular(20)),
+            )
+          : null,
       child: ListView(
         primary: false,
         children: [

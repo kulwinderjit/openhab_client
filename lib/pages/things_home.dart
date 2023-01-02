@@ -58,24 +58,28 @@ class _ThingsHomeState extends State<ThingsHome> {
                 children: [
                   SearchWidget(controller: _searchController),
                   Expanded(
-                    child: ListView.builder(
-                        itemCount: rs.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          Thing thing = rs[index];
-                          ThingWidget r = ThingWidget(
-                            name: thing.name ?? loc.noName,
-                            state: thing.state ?? false,
-                            stateCallback: (st) => switchState(
-                                st,
-                                thing.uuid,
-                                items.auth,
-                                items.apiToken,
-                                context,
-                                thing,
-                                items),
-                          );
-                          return r;
-                        }),
+                    child: GridView.builder(
+                      itemCount: rs.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        Thing thing = rs[index];
+                        ThingWidget r = ThingWidget(
+                          name: thing.name ?? loc.noName,
+                          state: thing.state ?? false,
+                          stateCallback: (st) => switchState(
+                              st,
+                              thing.uuid,
+                              items.auth,
+                              items.apiToken,
+                              context,
+                              thing,
+                              items),
+                        );
+                        return r;
+                      },
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: Utils.gridColumnCount(context),
+                          mainAxisExtent: 160),
+                    ),
                   ),
                 ],
               ));

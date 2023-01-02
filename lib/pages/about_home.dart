@@ -31,24 +31,27 @@ class AboutHome extends StatelessWidget {
             SizedBox(
               height: 10.0,
             ),
-            Card(
-              clipBehavior: Clip.antiAlias,
-              margin: EdgeInsets.symmetric(
-                vertical: 10.0,
-                horizontal: 25.0,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(50.0),
-              ),
-              elevation: 4,
-              child: ListTile(
-                leading: Icon(
-                  Typicons.social_github,
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 300),
+              child: Card(
+                clipBehavior: Clip.antiAlias,
+                margin: EdgeInsets.symmetric(
+                  vertical: 10.0,
+                  horizontal: 25.0,
                 ),
-                title: Text(
-                  loc.github,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(50.0),
                 ),
-                onTap: () => launch(loc.githubUrl),
+                elevation: 4,
+                child: ListTile(
+                  leading: Icon(
+                    Typicons.social_github,
+                  ),
+                  title: Text(
+                    loc.github,
+                  ),
+                  onTap: () => launch(loc.githubUrl),
+                ),
               ),
             ),
           ],

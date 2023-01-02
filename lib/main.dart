@@ -5,10 +5,12 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:openhab_client/models/ItemGroupsProvider.dart';
 import 'package:openhab_client/pages/page_wrapper.dart';
+import 'package:openhab_client/utils/layout.dart';
 import 'package:openhab_client/utils/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,6 +59,24 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
+      debugShowCheckedModeBanner: false,
+      debugShowMaterialGrid: false,
+      builder: (context, wid) => ResponsiveWrapper.builder(
+          ClampingScrollWrapper.builder(context, wid!),
+          maxWidth: 1920,
+          minWidth: 450,
+          defaultScale: false,
+          breakpoints: [
+            const ResponsiveBreakpoint.resize(450, name: Layout.MOBILE),
+            const ResponsiveBreakpoint.resize(550, name: Layout.TABLET),
+            const ResponsiveBreakpoint.resize(750, name: Layout.TABLET2),
+            const ResponsiveBreakpoint.resize(1000, name: Layout.TABLET3),
+            const ResponsiveBreakpoint.resize(1250, name: Layout.TABLET4),
+            const ResponsiveBreakpoint.resize(1600, name: Layout.TABLET5),
+            const ResponsiveBreakpoint.resize(1920, name: Layout.TABLET6),
+          ],
+          background:
+              Container(color: Theme.of(context).scaffoldBackgroundColor)),
       theme: FlexThemeData.light(
           scheme: widget.colorScheme,
           surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
