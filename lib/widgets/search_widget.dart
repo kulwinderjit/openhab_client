@@ -19,7 +19,9 @@ class SearchWidget extends StatelessWidget {
             controller: _controller,
             autocorrect: false,
             enableSuggestions: false,
+            textAlignVertical: TextAlignVertical.center,
             decoration: InputDecoration(
+                border: InputBorder.none,
                 prefixIcon: const Icon(Icons.search),
                 contentPadding: EdgeInsets.all(0))),
       ),

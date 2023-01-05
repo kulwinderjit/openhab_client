@@ -157,6 +157,7 @@ class ItemGroupsProvider extends ChangeNotifier {
 
   void _parseItems(String response, SharedPreferences prefs) {
     final List<Item> sensors = [];
+    _switches.clear();
     List<Item> items = (conv.jsonDecode(response) as List).map((e) {
       String label = e['label'] ?? '';
       String name = e['name'] ?? '';

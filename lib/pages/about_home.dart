@@ -18,7 +18,7 @@ class AboutHome extends StatelessWidget {
           children: <Widget>[
             Text(
               loc.developerName,
-              style: theme.textTheme.headline3,
+              style: theme.textTheme.headline4,
             ),
             Text(
               loc.aboutTagline,

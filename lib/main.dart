@@ -58,15 +58,15 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       theme: FlexThemeData.light(
-          scheme: widget.colorScheme,
-          surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
-          blendLevel: 15,
-          useSubThemes: true),
+        scheme: widget.colorScheme,
+        surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
+        blendLevel: 15,
+      ),
       darkTheme: FlexThemeData.dark(
-          scheme: widget.colorScheme,
-          surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
-          blendLevel: 15,
-          useSubThemes: true),
+        scheme: widget.colorScheme,
+        surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
+        blendLevel: 15,
+      ),
       themeMode: widget.themeMode,
       localizationsDelegates: const [
         AppLocalizations.delegate,
